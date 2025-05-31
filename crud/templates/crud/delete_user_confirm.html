@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete User Confirmation</title>
+</head>
+<body>
+    <h2>Delete User Confirmation</h2>
+    <p>Are you sure you want to delete user "{{ user.username }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete user</button>
+        <a href="{% url 'login' %}">Cancel</a>
+    </form>
+</body>
+</html>

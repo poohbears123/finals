@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Item Confirmation</title>
+</head>
+<body>
+    <h2>Delete Item Confirmation</h2>
+    <p>Are you sure you want to delete item "{{ item.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete item</button>
+        <a href="{% url 'item_list' %}">Cancel</a>
+    </form>
+</body>
+</html>
