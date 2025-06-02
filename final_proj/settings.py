@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'crud',
 ]
 
+LOGIN_REDIRECT_URL = '/main-menu/'
+LOGOUT_REDIRECT_URL = '/login/'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -80,7 +83,7 @@ DATABASES = {
         'NAME': 'FINAL',
         'USER': 'root',
         'PASSWORD': '',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }

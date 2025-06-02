@@ -25,4 +25,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('new_user/', crud_views.new_user, name='newuser'),
     path('delete_user/<int:user_id>/', crud_views.delete_user, name='delete_user'),
+    path('main-menu/', crud_views.main_menu, name='main_menu'),
+    path('', crud_views.item_list, name='item_list'),
 ]

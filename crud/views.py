@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 
+@login_required
+def main_menu(request):
+    return render(request, 'crud/main_menu.html')
+
 def item_list(request):
     items = Item.objects.all()
     return render(request, 'crud/item_list.html', {'items': items})
