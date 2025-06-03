@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Products Management</title>
+</head>
+<body>
+    <h1>Products Management</h1>
+    <p>Total Products: {{ products|length }}</p>
+    <p><a href="{% url 'item_create' %}">Add New Product</a></p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Variety</th>
+                <th>Total Quantity</th>
+                <th>Quantity Remain</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.variety }}</td>
+                <td>{{ product.total_quantity }}</td>
+                <td>{{ product.quantity_remain }}</td>
+                <td>
+                    <a href="{% url 'item_detail' product.id %}">View</a> |
+                    <a href="{% url 'item_update' product.id %}">Edit</a> |
+                    <a href="{% url 'item_delete' product.id %}">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No products found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="{% url 'main_menu' %}">Back to Main Menu</a></p>
+</body>
+</html>
