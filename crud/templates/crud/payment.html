@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment Demo</title>
+</head>
+<body>
+    <h1>Payment Demo</h1>
+    <p>This is a demo payment page. Click the button below to simulate payment processing.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Pay Now</button>
+    </form>
+    <p><a href="{% url 'view_cart' %}">Back to Cart</a></p>
+</body>
+</html>

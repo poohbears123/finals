@@ -6,43 +6,109 @@
     <title>Products Management</title>
 </head>
 <body>
-    <h1>Products Management</h1>
-    <p>Total Products: {{ products|length }}</p>
+    {# Removed Products Management heading and total products count for user side #}
+    {% if request.user.is_staff %}
     <p><a href="{% url 'item_create' %}">Add New Product</a></p>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Variety</th>
-                <th>Total Quantity</th>
-                <th>Quantity Remain</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.variety }}</td>
-                <td>{{ product.total_quantity }}</td>
-                <td>{{ product.quantity_remain }}</td>
-                <td>
-                    <a href="{% url 'item_detail' product.id %}">View</a> |
-                    <a href="{% url 'item_update' product.id %}">Edit</a> |
-                    <a href="{% url 'item_delete' product.id %}">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7">No products found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% endif %}
+    <p><a href="{% url 'view_cart' %}">View Cart</a></p>
+    <div id="popup-message" style="display:none; position: fixed; top: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
+
+    <div id="quantity-popup" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background-color: white; border: 1px solid #ccc; padding: 20px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h3>Add to Cart</h3>
+        <p id="popup-item-name"></p>
+        <p>Available Quantity: <span id="popup-item-quantity"></span></p>
+        <form id="add-to-cart-form" method="post" action="{% url 'add_to_cart' %}">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" id="popup-item-id" value="" />
+            <label for="quantity-input">Quantity:</label>
+            <input type="number" id="quantity-input" name="quantity" min="1" value="1" required />
+            <br/><br/>
+            <button type="submit">Add</button>
+            <button type="button" onclick="closeQuantityPopup()">Cancel</button>
+        </form>
+        <p id="popup-error" style="color: red; display: none;"></p>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const popup = document.getElementById('popup-message');
+            {% if messages %}
+                {% for message in messages %}
+                    popup.style.display = 'block';
+                    popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
+                    popup.textContent = "{{ message }}";
+                    setTimeout(() => { popup.style.display = 'none'; }, 3000);
+                {% endfor %}
+            {% endif %}
+        };
+
+        function openQuantityPopup(itemId, itemName, maxQuantity) {
+            document.getElementById('popup-item-id').value = itemId;
+            document.getElementById('popup-item-name').textContent = itemName;
+            document.getElementById('popup-item-quantity').textContent = maxQuantity;
+            const quantityInput = document.getElementById('quantity-input');
+            quantityInput.max = maxQuantity;
+            quantityInput.value = 1;
+            document.getElementById('popup-error').style.display = 'none';
+            document.getElementById('quantity-popup').style.display = 'block';
+        }
+
+        function closeQuantityPopup() {
+            document.getElementById('quantity-popup').style.display = 'none';
+        }
+
+        document.getElementById('add-to-cart-form').addEventListener('submit', function(event) {
+            const quantityInput = document.getElementById('quantity-input');
+            const maxQuantity = parseInt(quantityInput.max);
+            const quantity = parseInt(quantityInput.value);
+            if (quantity < 1 || quantity > maxQuantity) {
+                event.preventDefault();
+                const errorElem = document.getElementById('popup-error');
+                errorElem.textContent = 'Please enter a valid quantity between 1 and ' + maxQuantity + '.';
+                errorElem.style.display = 'block';
+            }
+        });
+    </script>
+    <style>
+        .product-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+    </style>
+    <div class="product-container">
+        {% for product in products %}
+        <div class="product-card">
+            {% if request.user.is_staff %}
+            <p><strong>ID:</strong> {{ product.id }}</p>
+            {% endif %}
+            <p><strong>Name:</strong> {{ product.name }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Variety:</strong> {{ product.variety }}</p>
+            <p><strong>Total Quantity:</strong> {{ product.total_quantity }}</p>
+            <p><strong>Quantity Remain:</strong> {{ product.quantity_remain }}</p>
+            <p>
+                <a href="{% url 'item_detail' product.id %}">View</a> |
+                {% if request.user.is_staff %}
+                <a href="{% url 'item_update' product.id %}">Edit</a> |
+                <a href="{% url 'item_delete' product.id %}">Delete</a> |
+                {% endif %}
+                <a href="javascript:void(0);" onclick="openQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})">Add to Cart</a>
+            </p>
+        </div>
+        {% empty %}
+        <p>No products found.</p>
+        {% endfor %}
+    </div>
     <p><a href="{% url 'main_menu' %}">Back to Main Menu</a></p>
 </body>
 </html>
