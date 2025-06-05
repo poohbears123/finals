@@ -37,4 +37,5 @@ urlpatterns = [
     path('cart/update_quantity/', crud_views.update_cart_quantity, name='update_cart_quantity'),
     path('cart/remove/<int:pk>/', crud_views.remove_from_cart, name='remove_from_cart'),
     path('payment/', crud_views.payment_demo, name='payment_demo'),
+    path('purchase_statistics/', crud_views.purchase_statistics, name='purchase_statistics'),
 ]

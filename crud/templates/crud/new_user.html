@@ -21,6 +21,12 @@
         <input type="email" name="email" id="id_email"><br>
         <label for="id_password">Password:</label>
         <input type="password" name="password" id="id_password" required><br>
+        <label for="id_role">Role:</label>
+        <select name="role" id="id_role" required>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+            <option value="user">User</option>
+        </select><br>
         <button type="submit" id="submit_button">Create User</button>
     </form>
     <h3>Existing Users</h3>

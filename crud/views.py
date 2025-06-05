@@ -173,6 +173,10 @@ def remove_from_cart(request, pk):
         messages.success(request, 'Item removed from cart.')
     return redirect('view_cart')
 
+from .models import Purchase
+from django.db.models import Sum
+from django.utils.timezone import now
+
 @login_required
 def payment_demo(request):
     if request.method == 'POST':
@@ -183,6 +187,8 @@ def payment_demo(request):
             if item.quantity_remain >= quantity:
                 item.quantity_remain -= quantity
                 item.save()
+                # Create Purchase record
+                Purchase.objects.create(user=request.user, item=item, quantity=quantity)
             else:
                 messages.error(request, f'Not enough quantity for {item.name}.')
                 return redirect('view_cart')
@@ -191,6 +197,20 @@ def payment_demo(request):
         request.session['cart'] = {}
         return redirect('products_management')
     return render(request, 'crud/payment.html')
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def purchase_statistics(request):
+    purchases = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
+    # Aggregate total quantity per item
+    total_per_item = Purchase.objects.values('item__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')
+    context = {
+        'purchases': purchases,
+        'total_per_item': total_per_item,
+        'now': now(),
+    }
+    return render(request, 'crud/purchase_statistics.html', context)
 
 from django.contrib.auth.decorators import login_required
 
@@ -201,6 +221,7 @@ def new_user(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         username = request.POST.get('username')
+        role = request.POST.get('role')
         if user_id:
             # Edit existing user
             user = get_object_or_404(User, id=user_id)
@@ -215,6 +236,28 @@ def new_user(request):
             password = request.POST.get('password')
             if password:
                 user.set_password(password)
+            # Role update logic
+            if request.user.is_superuser:
+                # Admin can set user, staff or admin
+                if role == 'admin':
+                    user.is_staff = True
+                    user.is_superuser = True
+                elif role == 'staff':
+                    user.is_staff = True
+                    user.is_superuser = False
+                else:
+                    user.is_staff = False
+                    user.is_superuser = False
+            elif request.user.is_staff:
+                # Staff can only set admin or user
+                if role == 'admin':
+                    user.is_staff = True
+                    user.is_superuser = True
+                elif role == 'user':
+                    user.is_staff = False
+                    user.is_superuser = False
+                else:
+                    return render(request, 'crud/new_user.html', {'error': 'Staff can only create admin or user roles', 'users': User.objects.all()})
             user.save()
             return redirect('edit_users')
         else:
@@ -224,7 +267,24 @@ def new_user(request):
                 return render(request, 'crud/new_user.html', {'error': 'Username already exists', 'users': users})
             password = request.POST.get('password')
             if username and password:
-                user = User.objects.create_user(username=username, password=password)
+                if request.user.is_superuser:
+                    # Admin can create user, staff or admin
+                    if role == 'admin':
+                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=True)
+                    elif role == 'staff':
+                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=False)
+                    else:
+                        user = User.objects.create_user(username=username, password=password, is_staff=False, is_superuser=False)
+                elif request.user.is_staff:
+                    # Staff can only create admin or user
+                    if role == 'admin':
+                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=True)
+                    elif role == 'user':
+                        user = User.objects.create_user(username=username, password=password, is_staff=False, is_superuser=False)
+                    else:
+                        return render(request, 'crud/new_user.html', {'error': 'Staff can only create admin or user roles', 'users': User.objects.all()})
+                else:
+                    return render(request, 'crud/new_user.html', {'error': 'You do not have permission to create users', 'users': User.objects.all()})
                 user.first_name = request.POST.get('first_name', '')
                 user.last_name = request.POST.get('last_name', '')
                 user.email = request.POST.get('email', '')

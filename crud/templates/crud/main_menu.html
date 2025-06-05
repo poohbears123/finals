@@ -28,7 +28,7 @@
             {% if is_admin %}
                 <li><a href="{% url 'products_management' %}">Products</a></li>
                 <li><a href="{% url 'edit_users' %}">Edit Users</a></li>
-                <!-- For user deletion, since it requires user_id, you may need a user list page -->
+                <li><a href="{% url 'purchase_statistics' %}">Purchase Statistics</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             {% else %}
                 <li><a href="{% url 'products_management' %}">Products</a></li>
