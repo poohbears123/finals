@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Past Orders</title>
+</head>
+<body>
+    <h2>Past Orders</h2>
+    {% if purchases %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Order Date</th>
+                <th>Item</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for purchase in purchases %}
+            <tr>
+                <td>{{ purchase.purchase_date }}</td>
+                <td>{{ purchase.item.name }}</td>
+                <td>{{ purchase.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No past orders found.</p>
+    {% endif %}
+    <a href="{% url 'main_menu' %}">Back to Main Menu</a>
+</body>
+</html>

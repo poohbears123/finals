@@ -1,34 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Users</title>
+    <title>{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</title>
 </head>
 <body>
-    <h2>Edit Users</h2>
+    <h2>{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</h2>
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
     <form method="post">
         {% csrf_token %}
+        {% if not profile_edit %}
         <input type="hidden" name="user_id" id="id_user_id" value="">
+        {% endif %}
         <label for="id_username">Username:</label>
-        <input type="text" name="username" id="id_username" required><br>
+        <input type="text" name="username" id="id_username" value="{% if profile_edit %}{{ user.username }}{% endif %}" {% if not profile_edit %}required{% endif %}><br>
         <label for="id_first_name">First Name:</label>
-        <input type="text" name="first_name" id="id_first_name"><br>
+        <input type="text" name="first_name" id="id_first_name" value="{% if profile_edit %}{{ user.first_name }}{% endif %}"><br>
         <label for="id_last_name">Last Name:</label>
-        <input type="text" name="last_name" id="id_last_name"><br>
+        <input type="text" name="last_name" id="id_last_name" value="{% if profile_edit %}{{ user.last_name }}{% endif %}"><br>
         <label for="id_email">Email:</label>
-        <input type="email" name="email" id="id_email"><br>
-        <label for="id_password">Password:</label>
+        <input type="email" name="email" id="id_email" value="{% if profile_edit %}{{ user.email }}{% endif %}"><br>
+        <label for="id_password">Password{% if profile_edit %} (leave blank to keep current){% endif %}:</label>
         <input type="password" name="password" id="id_password"><br>
+        {% if not profile_edit %}
         <label for="id_role">Role:</label>
         <select name="role" id="id_role" required>
             <option value="admin">Admin</option>
             <option value="staff">Staff</option>
             <option value="user">User</option>
         </select><br>
-        <button type="submit" id="submit_button">Create User</button>
+        {% endif %}
+        <button type="submit" id="submit_button">{% if profile_edit %}Update Profile{% else %}Create User{% endif %}</button>
     </form>
+    {% if not profile_edit %}
     <h3>Existing Users</h3>
     <table border="1">
         <thead>
@@ -60,8 +70,10 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
     <a href="{% url 'main_menu' %}">Back to Main Menu</a>
 <script>
+{% if not profile_edit %}
 function editUser(userId, username, firstName, lastName, email) {
     document.getElementById('id_user_id').value = userId;
     document.getElementById('id_username').value = username;
@@ -71,6 +83,7 @@ function editUser(userId, username, firstName, lastName, email) {
     document.getElementById('id_password').value = '';
     document.getElementById('submit_button').textContent = 'Update User';
 }
+{% endif %}
 </script>
 </body>
 </html>

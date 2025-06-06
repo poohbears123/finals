@@ -38,4 +38,6 @@ urlpatterns = [
     path('cart/remove/<int:pk>/', crud_views.remove_from_cart, name='remove_from_cart'),
     path('payment/', crud_views.payment_demo, name='payment_demo'),
     path('purchase_statistics/', crud_views.purchase_statistics, name='purchase_statistics'),
+    path('profile_edit/', crud_views.profile_edit, name='profile_edit'),
+    path('past_orders/', crud_views.past_orders, name='past_orders'),
 ]

@@ -290,6 +290,10 @@ def purchase_statistics(request):
     return render(request, 'crud/purchase_statistics.html', context)
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Purchase
+from django.contrib import messages
 
 @login_required
 def new_user(request):
@@ -339,40 +343,36 @@ def new_user(request):
             user.save()
             return redirect('edit_users')
         else:
-            # Create new user
-            if username and User.objects.filter(username=username).exists():
-                users = User.objects.all()
-                return render(request, 'crud/new_user.html', {'error': 'Username already exists', 'users': users})
-            password = request.POST.get('password')
-            if username and password:
-                if request.user.is_superuser:
-                    # Admin can create user, staff or admin
-                    if role == 'admin':
-                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=True)
-                    elif role == 'staff':
-                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=False)
-                    else:
-                        user = User.objects.create_user(username=username, password=password, is_staff=False, is_superuser=False)
-                elif request.user.is_staff:
-                    # Staff can only create admin or user
-                    if role == 'admin':
-                        user = User.objects.create_user(username=username, password=password, is_staff=True, is_superuser=True)
-                    elif role == 'user':
-                        user = User.objects.create_user(username=username, password=password, is_staff=False, is_superuser=False)
-                    else:
-                        return render(request, 'crud/new_user.html', {'error': 'Staff can only create admin or user roles', 'users': User.objects.all()})
-                else:
-                    return render(request, 'crud/new_user.html', {'error': 'You do not have permission to create users', 'users': User.objects.all()})
-                user.first_name = request.POST.get('first_name', '')
-                user.last_name = request.POST.get('last_name', '')
-                user.email = request.POST.get('email', '')
-                user.save()
-                return redirect('edit_users')
-            else:
-                users = User.objects.all()
-                return render(request, 'crud/new_user.html', {'error': 'Please provide username and password', 'users': users})
+            users = User.objects.all()
+            return render(request, 'crud/new_user.html', {'error': 'Please provide username and password', 'users': users})
     users = User.objects.all()
     return render(request, 'crud/new_user.html', {'users': users})
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        if username and User.objects.filter(username=username).exclude(id=user.id).exists():
+            messages.error(request, 'Username already exists')
+            return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
+        if username:
+            user.username = username
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        password = request.POST.get('password')
+        if password and password.strip() != '':
+            user.set_password(password)
+        user.save()
+        messages.success(request, 'Profile updated successfully')
+        return redirect('profile_edit')
+    return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
+
+@login_required
+def past_orders(request):
+    purchases = Purchase.objects.filter(user=request.user).select_related('item').order_by('-purchase_date')
+    return render(request, 'crud/past_orders.html', {'purchases': purchases})
 
 @login_required
 def delete_user(request, user_id):
