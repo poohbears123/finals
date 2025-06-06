@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Item
+from .models import Item, Category, Variety
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
@@ -11,6 +11,52 @@ def main_menu(request):
     return render(request, 'crud/main_menu.html', context)
 
 @login_required
+def variety_list(request):
+    varieties = Variety.objects.all()
+    return render(request, 'crud/variety_list.html', {'varieties': varieties})
+
+@login_required
+def variety_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if name:
+            if Variety.objects.filter(name=name).exists():
+                messages.error(request, 'Variety with this name already exists.')
+            else:
+                Variety.objects.create(name=name)
+                messages.success(request, 'Variety created successfully.')
+                return redirect('variety_list')
+        else:
+            messages.error(request, 'Name cannot be empty.')
+    return render(request, 'crud/variety_form.html')
+
+@login_required
+def variety_update(request, pk):
+    variety = get_object_or_404(Variety, pk=pk)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if name:
+            if Variety.objects.filter(name=name).exclude(pk=pk).exists():
+                messages.error(request, 'Variety with this name already exists.')
+            else:
+                variety.name = name
+                variety.save()
+                messages.success(request, 'Variety updated successfully.')
+                return redirect('variety_list')
+        else:
+            messages.error(request, 'Name cannot be empty.')
+    return render(request, 'crud/variety_form.html', {'variety': variety})
+
+@login_required
+def variety_delete(request, pk):
+    variety = get_object_or_404(Variety, pk=pk)
+    if request.method == 'POST':
+        variety.delete()
+        messages.success(request, 'Variety deleted successfully.')
+        return redirect('variety_list')
+    return render(request, 'crud/variety_confirm_delete.html', {'variety': variety})
+
+@login_required
 def item_list(request):
     if not request.user.is_staff:
         return redirect('main_menu')
@@ -19,8 +65,25 @@ def item_list(request):
 
 @login_required
 def products_management(request):
+    category_id = request.GET.get('category', '')
+    search_query = request.GET.get('search', '')
+
     products = Item.objects.all()
-    return render(request, 'crud/products.html', {'products': products})
+
+    if category_id and category_id != 'all':
+        products = products.filter(category_id=category_id)
+
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+
+    categories = Category.objects.all()
+
+    return render(request, 'crud/products.html', {
+        'products': products,
+        'categories': categories,
+        'selected_category': category_id,
+        'search_query': search_query,
+    })
 
 @login_required
 def item_detail(request, pk):
@@ -28,12 +91,6 @@ def item_detail(request, pk):
     return render(request, 'crud/item_detail.html', {'item': item})
 
 from django.contrib import messages
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Item
-from django.http import HttpResponse
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def item_create(request):
@@ -46,10 +103,19 @@ def item_create(request):
             messages.error(request, "Product with this name already exists.")
             return render(request, 'crud/item_form.html')
         description = request.POST.get('description')
-        variety = request.POST.get('variety', '')
-        total_quantity = int(request.POST.get('total_quantity', 0))
-        quantity_remain = int(request.POST.get('quantity_remain', 0))
-        Item.objects.create(name=name, description=description, variety=variety, total_quantity=total_quantity, quantity_remain=quantity_remain)
+        variety_id = request.POST.get('variety', '')
+        variety = None
+        if variety_id:
+            try:
+                variety = Variety.objects.get(pk=variety_id)
+            except Variety.DoesNotExist:
+                variety = None
+        category_name = request.POST.get('category', '').strip()
+        category = None
+        if category_name:
+            category, created = Category.objects.get_or_create(name=category_name)
+        quantity = int(request.POST.get('quantity', 0))
+        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity)
         return redirect('products_management')
     return render(request, 'crud/item_form.html')
 
@@ -63,21 +129,32 @@ def item_update(request, pk):
     item = get_object_or_404(Item, pk=pk)
     if request.method == 'POST':
         name = request.POST.get('name')
-        # Allow unchanged name without error
         if name != item.name and Item.objects.filter(name=name).exists():
             messages.error(request, "Product with this name already exists.")
             return render(request, 'crud/item_form.html', {'item': item})
         item.name = name
         item.description = request.POST.get('description')
-        item.variety = request.POST.get('variety', '')
-        total_quantity = int(request.POST.get('total_quantity', 0))
-        quantity_remain = int(request.POST.get('quantity_remain', 0))
+        variety_id = request.POST.get('variety', '')
+        if variety_id:
+            try:
+                variety = Variety.objects.get(pk=variety_id)
+                item.variety = variety
+            except Variety.DoesNotExist:
+                item.variety = None
+        else:
+            item.variety = None
+        category_name = request.POST.get('category', '').strip()
+        if category_name:
+            category, created = Category.objects.get_or_create(name=category_name)
+            item.category = category
+        else:
+            item.category = None
+        quantity = int(request.POST.get('quantity', 0))
         # Prevent negative values
-        if total_quantity < 0 or quantity_remain < 0:
-            messages.error(request, "Total quantity and quantity remain cannot be negative.")
+        if quantity < 0:
+            messages.error(request, "Quantity cannot be negative.")
             return render(request, 'crud/item_form.html', {'item': item})
-        item.total_quantity = total_quantity
-        item.quantity_remain = quantity_remain
+        item.quantity = quantity
         item.save()
         messages.success(request, "Product updated successfully.")
         return redirect('products_management')
@@ -116,12 +193,12 @@ def add_to_cart(request):
             messages.error(request, 'Quantity must be at least 1.')
             return redirect('products_management')
         item = get_object_or_404(Item, pk=item_id)
-        if quantity > item.quantity_remain:
+        if quantity > item.quantity:
             messages.error(request, f'Cannot add more than available quantity for {item.name}.')
             return redirect('products_management')
         cart = request.session.get('cart', {})
         current_quantity = cart.get(str(item_id), 0)
-        if current_quantity + quantity > item.quantity_remain:
+        if current_quantity + quantity > item.quantity:
             messages.error(request, f'Cannot add more than available quantity for {item.name}.')
             return redirect('products_management')
         cart[str(item_id)] = current_quantity + quantity
@@ -234,8 +311,9 @@ def new_user(request):
             user.last_name = request.POST.get('last_name', '')
             user.email = request.POST.get('email', '')
             password = request.POST.get('password')
-            if password:
+            if password and password.strip() != '':
                 user.set_password(password)
+            # If password is empty or not provided, do not change the password
             # Role update logic
             if request.user.is_superuser:
                 # Admin can set user, staff or admin

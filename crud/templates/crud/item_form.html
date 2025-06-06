@@ -13,10 +13,12 @@
         <textarea name="description" id="id_description">{{ item.description|default_if_none:'' }}</textarea><br>
         <label for="id_variety">Variety:</label>
         <input type="text" name="variety" id="id_variety" value="{{ item.variety|default_if_none:'' }}"><br>
+        <label for="id_category">Category:</label>
+        <input type="text" name="category" id="id_category" value="{{ item.category.name|default_if_none:'' }}"><br>
         <label for="id_total_quantity">Total Quantity:</label>
         <input type="number" name="total_quantity" id="id_total_quantity" value="{{ item.total_quantity|default_if_none:0 }}"><br>
-        <label for="id_quantity_remain">Quantity Remain:</label>
-        <input type="number" name="quantity_remain" id="id_quantity_remain" value="{{ item.quantity_remain|default_if_none:0 }}"><br>
+        <label for="id_quantity">Quantity:</label>
+        <input type="number" name="quantity" id="id_quantity" value="{{ item.quantity|default_if_none:0 }}"><br>
         <button type="submit">{% if item %}Update{% else %}Create{% endif %}</button>
     </form>
     <a href="{% url 'products_management' %}">Back to Products</a>

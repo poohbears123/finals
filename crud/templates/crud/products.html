@@ -6,7 +6,17 @@
     <title>Products Management</title>
 </head>
 <body>
-    {# Removed Products Management heading and total products count for user side #}
+   
+    <form method="get" action="{% url 'products_management' %}">
+        <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" />
+        <select name="category">
+            <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
     {% if request.user.is_staff %}
     <p><a href="{% url 'item_create' %}">Add New Product</a></p>
     {% endif %}
