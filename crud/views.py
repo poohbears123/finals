@@ -78,6 +78,10 @@ def products_management(request):
 
     categories = Category.objects.all()
 
+    # Add total_quantity to each product
+    for product in products:
+        product.total_quantity = product.quantity  # total quantity field
+
     return render(request, 'crud/products.html', {
         'products': products,
         'categories': categories,
@@ -224,11 +228,14 @@ def view_cart(request):
     cart = request.session.get('cart', {})
     items = []
     total_quantity = 0
+    total_price = 0
     for pk, quantity in cart.items():
         item = get_object_or_404(Item, pk=pk)
-        items.append({'item': item, 'quantity': quantity})
+        item_total_price = item.price * quantity
+        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price})
         total_quantity += quantity
-    return render(request, 'crud/cart.html', {'items': items, 'total_quantity': total_quantity})
+        total_price += item_total_price
+    return render(request, 'crud/cart.html', {'items': items, 'total_quantity': total_quantity, 'total_price': total_price})
 
 @login_required
 def update_cart_quantity(request):

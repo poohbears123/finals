@@ -19,6 +19,9 @@ from django.urls import path
 from crud import views as crud_views
 from django.contrib.auth import views as auth_views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(template_name='crud/login.html'), name='login'),
@@ -41,3 +44,6 @@ urlpatterns = [
     path('profile_edit/', crud_views.profile_edit, name='profile_edit'),
     path('past_orders/', crud_views.past_orders, name='past_orders'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

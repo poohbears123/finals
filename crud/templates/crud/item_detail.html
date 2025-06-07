@@ -7,6 +7,11 @@
     <h2>Item Detail</h2>
     <p><strong>Name:</strong> {{ item.name }}</p>
     <p><strong>Description:</strong> {{ item.description }}</p>
+    {% if item.photo %}
+        <img src="{{ item.photo.url }}" alt="{{ item.name }}" style="max-width:300px; max-height:300px;">
+    {% else %}
+        <p>No image available.</p>
+    {% endif %}
     <a href="{% url 'item_update' item.pk %}">Edit</a> |
     <a href="{% url 'item_delete' item.pk %}">Delete</a> |
     <a href="{% url 'products_management' %}">Back to List</a>

@@ -104,9 +104,9 @@
                 <p style="color: red; font-weight: bold;">Photo error: No photo available</p>
             {% endif %}
             <p><strong>Name:</strong> {{ product.name }}</p>
+            <p><strong>Price:</strong> PHP {{ product.price }}</p>
             <p><strong>Description:</strong> {{ product.description }}</p>
             <p><strong>Variety:</strong> {{ product.variety }}</p>
-            <p><strong>Total Quantity:</strong> {{ product.total_quantity }}</p>
             <p><strong>Quantity Remain:</strong> {{ product.quantity_remain }}</p>
             <p>
                 <a href="{% url 'item_detail' product.id %}">View</a> |

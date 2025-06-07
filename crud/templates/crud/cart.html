@@ -12,7 +12,9 @@
         <thead>
             <tr>
                 <th>Product</th>
+                <th>Price (PHP)</th>
                 <th>Quantity</th>
+                <th>Total Price (PHP)</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,6 +22,7 @@
             {% for entry in items %}
             <tr>
                 <td>{{ entry.item.name }}</td>
+                <td>{{ entry.item.price }}</td>
                 <td>
                     <form method="post" action="{% url 'update_cart_quantity' %}">
                         {% csrf_token %}
@@ -28,6 +31,7 @@
                         <button type="submit">Update</button>
                     </form>
                 </td>
+                <td>{{ entry.item_total_price }}</td>
                 <td>
                     <a href="{% url 'remove_from_cart' entry.item.id %}">Remove</a>
                 </td>
@@ -36,6 +40,7 @@
         </tbody>
     </table>
     <p>Total Items: {{ total_quantity }}</p>
+    <p><strong>Total Price: PHP {{ total_price }}</strong></p>
     <form method="post" action="{% url 'payment_demo' %}">
         {% csrf_token %}
         <button type="submit">Proceed to Payment (Demo)</button>
