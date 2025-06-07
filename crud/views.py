@@ -270,6 +270,7 @@ def remove_from_cart(request, pk):
 from .models import Purchase
 from django.db.models import Sum
 from django.utils.timezone import now
+from django.contrib.admin.views.decorators import staff_member_required
 
 @login_required
 def payment_demo(request):
@@ -402,6 +403,30 @@ def profile_edit(request):
 def past_orders(request):
     purchases = Purchase.objects.filter(user=request.user).select_related('item').order_by('-purchase_date')
     return render(request, 'crud/past_orders.html', {'purchases': purchases})
+
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
+
+@staff_member_required
+@csrf_protect
+def admin_orders(request):
+    if request.method == 'POST':
+        purchase_id = request.POST.get('purchase_id')
+        new_status = request.POST.get('status')
+        if purchase_id and new_status:
+            try:
+                purchase = Purchase.objects.get(id=purchase_id)
+                purchase.status = new_status
+                purchase.save()
+                messages.success(request, f"Order status updated for purchase {purchase_id}.")
+            except Purchase.DoesNotExist:
+                messages.error(request, "Purchase not found.")
+        else:
+            messages.error(request, "Invalid data submitted.")
+        return redirect('admin_orders')
+    else:
+        purchases = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
+        return render(request, 'crud/admin_orders.html', {'purchases': purchases})
 
 @login_required
 def delete_user(request, user_id):

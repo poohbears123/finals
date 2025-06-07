@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Orders</title>
+</head>
+<body>
+    <h2>All Orders</h2>
+    {% if purchases %}
+    <form method="post" action="{% url 'admin_orders' %}">
+        {% csrf_token %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Order Date</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Update Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                    <td>{{ purchase.user.username }}</td>
+                    <td>{{ purchase.purchase_date }}</td>
+                    <td>{{ purchase.item.name }}</td>
+                    <td>{{ purchase.quantity }}</td>
+                    <td>{{ purchase.status }}</td>
+                    <td>
+                        <input type="hidden" name="purchase_id" value="{{ purchase.id }}">
+                        <select name="status">
+                            <option value="Pending" {% if purchase.status == "Pending" %}selected{% endif %}>Pending</option>
+                            <option value="Ready for Pick Up" {% if purchase.status == "Ready for Pick Up" %}selected{% endif %}>Ready for Pick Up</option>
+                            <option value="Completed" {% if purchase.status == "Completed" %}selected{% endif %}>Completed</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+    {% else %}
+    <p>No orders found.</p>
+    {% endif %}
+    <a href="{% url 'main_menu' %}">Back to Main Menu</a>
+</body>
+</html>

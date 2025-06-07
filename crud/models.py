@@ -36,6 +36,7 @@ class Item(models.Model):
 class Purchase(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
+        ('Ready for Pick Up', 'Ready for Pick Up'),
         ('Completed', 'Completed'),
     ]
 
@@ -43,7 +44,7 @@ class Purchase(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     purchase_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
         return f"{self.user.username} bought {self.quantity} of {self.item.name} on {self.purchase_date.strftime('%Y-%m-%d %H:%M:%S')} (Status: {self.status})"

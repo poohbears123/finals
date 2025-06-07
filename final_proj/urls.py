@@ -44,6 +44,7 @@ urlpatterns = [
     path('profile_edit/', crud_views.profile_edit, name='profile_edit'),
     path('past_orders/', crud_views.past_orders, name='past_orders'),
     path('order_confirmation/', crud_views.order_confirmation, name='order_confirmation'),
+    path('admin_orders/', crud_views.admin_orders, name='admin_orders'),
 ]
 
 if settings.DEBUG:
