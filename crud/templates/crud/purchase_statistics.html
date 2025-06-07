@@ -38,6 +38,7 @@
                 <th>Item</th>
                 <th>Quantity</th>
                 <th>Purchase Date</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -47,10 +48,11 @@
                 <td>{{ purchase.item.name }}</td>
                 <td>{{ purchase.quantity }}</td>
                 <td>{{ purchase.purchase_date|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ purchase.status }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4">No recent purchases.</td>
+                <td colspan="5">No recent purchases.</td>
             </tr>
             {% endfor %}
         </tbody>

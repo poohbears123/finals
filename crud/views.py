@@ -115,7 +115,8 @@ def item_create(request):
         if category_name:
             category, created = Category.objects.get_or_create(name=category_name)
         quantity = int(request.POST.get('quantity', 0))
-        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity)
+        photo = request.FILES.get('photo')
+        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity, photo=photo)
         return redirect('products_management')
     return render(request, 'crud/item_form.html')
 
@@ -155,6 +156,9 @@ def item_update(request, pk):
             messages.error(request, "Quantity cannot be negative.")
             return render(request, 'crud/item_form.html', {'item': item})
         item.quantity = quantity
+        photo = request.FILES.get('photo')
+        if photo:
+            item.photo = photo
         item.save()
         messages.success(request, "Product updated successfully.")
         return redirect('products_management')
@@ -264,8 +268,8 @@ def payment_demo(request):
             if item.quantity_remain >= quantity:
                 item.quantity_remain -= quantity
                 item.save()
-                # Create Purchase record
-                Purchase.objects.create(user=request.user, item=item, quantity=quantity)
+                # Create Purchase record with status Completed
+                Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Completed')
             else:
                 messages.error(request, f'Not enough quantity for {item.name}.')
                 return redirect('view_cart')

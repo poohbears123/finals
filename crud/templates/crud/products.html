@@ -98,8 +98,10 @@
     <div class="product-container">
         {% for product in products %}
         <div class="product-card">
-            {% if request.user.is_staff %}
-            <p><strong>ID:</strong> {{ product.id }}</p>
+            {% if product.photo %}
+                <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+            {% else %}
+                <p style="color: red; font-weight: bold;">Photo error: No photo available</p>
             {% endif %}
             <p><strong>Name:</strong> {{ product.name }}</p>
             <p><strong>Description:</strong> {{ product.description }}</p>
