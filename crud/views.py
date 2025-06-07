@@ -311,6 +311,7 @@ from django.contrib import messages
 
 @login_required
 def new_user(request):
+    # Remove or restrict access to user side
     if not request.user.is_staff:
         return redirect('main_menu')
     if request.method == 'POST':
@@ -345,15 +346,18 @@ def new_user(request):
                     user.is_staff = False
                     user.is_superuser = False
             elif request.user.is_staff:
-                # Staff can only set admin or user
+                # Staff can set staff or user roles, including removing staff auth
                 if role == 'admin':
+                    # Staff cannot assign admin role
+                    return render(request, 'crud/new_user.html', {'error': 'Staff cannot assign admin role', 'users': User.objects.all()})
+                elif role == 'staff':
                     user.is_staff = True
-                    user.is_superuser = True
+                    user.is_superuser = False
                 elif role == 'user':
                     user.is_staff = False
                     user.is_superuser = False
                 else:
-                    return render(request, 'crud/new_user.html', {'error': 'Staff can only create admin or user roles', 'users': User.objects.all()})
+                    return render(request, 'crud/new_user.html', {'error': 'Invalid role selected', 'users': User.objects.all()})
             user.save()
             return redirect('edit_users')
         else:

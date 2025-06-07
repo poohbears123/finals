@@ -22,19 +22,16 @@
             {% endif %}
         };
     </script>
-    <!--p>Debug: is_admin={{ is_admin }}, user.is_staff={{ user.is_staff }}</p-->
+    <p>Debug: is_admin={{ is_admin }}, user.is_staff={{ user.is_staff }}</p>
     <nav>
         <ul>
             <li><a href="{% url 'products_management' %}">Products</a></li>
             <li><a href="{% url 'past_orders' %}">Past Orders</a></li>
-            <li><a href="{% url 'profile_edit' %}">Edit Profile</a></li>
-            {% if is_admin %}
-                <li><a href="{% url 'edit_users' %}">Edit Users</a></li>
-                <li><a href="{% url 'purchase_statistics' %}">Purchase Statistics</a></li>
-            {% else %}
-                <li><a href="{% url 'view_cart' %}">View Cart</a></li>
-                <li><a href="{% url 'payment_demo' %}">Payment</a></li>
+            <li><a href="{% url 'profile_edit' %}">Edit Profile</a></li> 
+            {% if user.is_superuser %}
+                <li><a href="{% url 'edit_users' %}">Edit Users</a></li> 
             {% endif %}
+            <li><a href="{% url 'view_cart' %}">View Cart</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
