@@ -115,8 +115,9 @@ def item_create(request):
         if category_name:
             category, created = Category.objects.get_or_create(name=category_name)
         quantity = int(request.POST.get('quantity', 0))
+        price = int(request.POST.get('price', 0))
         photo = request.FILES.get('photo')
-        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity, photo=photo)
+        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity, price=price, photo=photo)
         return redirect('products_management')
     return render(request, 'crud/item_form.html')
 
@@ -156,6 +157,11 @@ def item_update(request, pk):
             messages.error(request, "Quantity cannot be negative.")
             return render(request, 'crud/item_form.html', {'item': item})
         item.quantity = quantity
+        price = int(request.POST.get('price', 0))
+        if price < 0:
+            messages.error(request, "Price cannot be negative.")
+            return render(request, 'crud/item_form.html', {'item': item})
+        item.price = price
         photo = request.FILES.get('photo')
         if photo:
             item.photo = photo
@@ -276,7 +282,11 @@ def payment_demo(request):
         messages.success(request, 'Payment processed successfully.')
         # Clear cart after payment
         request.session['cart'] = {}
-        return redirect('products_management')
+
+        # TODO: Add Zapier integration here to send email after order confirmation
+        # Example: send_order_confirmation_email(user=request.user, order_details=cart)
+
+        return redirect('order_confirmation')
     return render(request, 'crud/payment.html')
 
 from django.contrib.admin.views.decorators import staff_member_required

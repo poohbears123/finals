@@ -21,6 +21,8 @@
         <input type="number" name="quantity" id="id_quantity" value="{{ item.quantity|default_if_none:0 }}"><br>
         <label for="id_photo">Photo:</label>
         <input type="file" name="photo" id="id_photo" accept="image/*"><br>
+        <label for="id_price">Price (PHP):</label>
+        <input type="number" name="price" id="id_price" value="{{ item.price|default_if_none:0 }}" min="0" required><br>
         <button type="submit">{% if item %}Update{% else %}Create{% endif %}</button>
     </form>
     <a href="{% url 'products_management' %}">Back to Products</a>

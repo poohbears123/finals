@@ -19,6 +19,7 @@ class Item(models.Model):
     variety = models.ForeignKey(Variety, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(default=0)
+    price = models.IntegerField(default=0)  # Price in Philippine Peso
     photo = models.ImageField(upload_to='product_photos/', null=True, blank=True)
 
     def __str__(self):
