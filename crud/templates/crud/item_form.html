@@ -15,10 +15,8 @@
         <input type="text" name="variety" id="id_variety" value="{{ item.variety|default_if_none:'' }}"><br>
         <label for="id_category">Category:</label>
         <input type="text" name="category" id="id_category" value="{{ item.category.name|default_if_none:'' }}"><br>
-        <label for="id_total_quantity">Total Quantity:</label>
-        <input type="number" name="total_quantity" id="id_total_quantity" value="{{ item.total_quantity|default_if_none:0 }}"><br>
-        <label for="id_quantity">Quantity:</label>
-        <input type="number" name="quantity" id="id_quantity" value="{{ item.quantity|default_if_none:0 }}"><br>
+        <label for="id_stock">Stock:</label>
+        <input type="number" name="stock" id="id_stock" value="{{ item.stock|default_if_none:0 }}"><br>
         <label for="id_photo">Photo:</label>
         <input type="file" name="photo" id="id_photo" accept="image/*"><br>
         <label for="id_price">Price (PHP):</label>

@@ -78,9 +78,9 @@ def products_management(request):
 
     categories = Category.objects.all()
 
-    # Add total_quantity to each product
+    # Add stock to each product
     for product in products:
-        product.total_quantity = product.quantity  # total quantity field
+        product.stock = product.stock  # stock field (renamed from quantity)
 
     return render(request, 'crud/products.html', {
         'products': products,
@@ -118,10 +118,10 @@ def item_create(request):
         category = None
         if category_name:
             category, created = Category.objects.get_or_create(name=category_name)
-        quantity = int(request.POST.get('quantity', 0))
+        stock = int(request.POST.get('stock', 0))
         price = int(request.POST.get('price', 0))
         photo = request.FILES.get('photo')
-        Item.objects.create(name=name, description=description, variety=variety, category=category, quantity=quantity, price=price, photo=photo)
+        Item.objects.create(name=name, description=description, variety=variety, category=category, stock=stock, price=price, photo=photo)
         return redirect('products_management')
     return render(request, 'crud/item_form.html')
 
@@ -155,12 +155,12 @@ def item_update(request, pk):
             item.category = category
         else:
             item.category = None
-        quantity = int(request.POST.get('quantity', 0))
+        stock = int(request.POST.get('stock', 0))
         # Prevent negative values
-        if quantity < 0:
-            messages.error(request, "Quantity cannot be negative.")
+        if stock < 0:
+            messages.error(request, "Stock cannot be negative.")
             return render(request, 'crud/item_form.html', {'item': item})
-        item.quantity = quantity
+        item.stock = stock
         price = int(request.POST.get('price', 0))
         if price < 0:
             messages.error(request, "Price cannot be negative.")
@@ -207,13 +207,13 @@ def add_to_cart(request):
             messages.error(request, 'Quantity must be at least 1.')
             return redirect('products_management')
         item = get_object_or_404(Item, pk=item_id)
-        if quantity > item.quantity:
-            messages.error(request, f'Cannot add more than available quantity for {item.name}.')
+        if quantity > item.stock:
+            messages.error(request, f'Cannot add more than available stock for {item.name}.')
             return redirect('products_management')
         cart = request.session.get('cart', {})
         current_quantity = cart.get(str(item_id), 0)
-        if current_quantity + quantity > item.quantity:
-            messages.error(request, f'Cannot add more than available quantity for {item.name}.')
+        if current_quantity + quantity > item.stock:
+            messages.error(request, f'Cannot add more than available stock for {item.name}.')
             return redirect('products_management')
         cart[str(item_id)] = current_quantity + quantity
         request.session['cart'] = cart
@@ -279,12 +279,12 @@ def payment_demo(request):
             pk = int(pk_str)
             item = get_object_or_404(Item, pk=pk)
             if item.quantity_remain >= quantity:
-                item.quantity_remain -= quantity
+                item.stock -= quantity  # update actual stock field
                 item.save()
                 # Create Purchase record with status Completed
                 Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Completed')
             else:
-                messages.error(request, f'Not enough quantity for {item.name}.')
+                messages.error(request, f'Not enough stock for {item.name}.')
                 return redirect('view_cart')
         messages.success(request, 'Payment processed successfully.')
         # Clear cart after payment
@@ -372,6 +372,10 @@ def new_user(request):
             return render(request, 'crud/new_user.html', {'error': 'Please provide username and password', 'users': users})
     users = User.objects.all()
     return render(request, 'crud/new_user.html', {'users': users})
+
+@login_required
+def order_confirmation(request):
+    return render(request, 'crud/order_confirmation.html')
 
 @login_required
 def profile_edit(request):

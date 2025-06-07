@@ -30,6 +30,7 @@
             <li><a href="{% url 'profile_edit' %}">Edit Profile</a></li> 
             {% if user.is_superuser %}
                 <li><a href="{% url 'edit_users' %}">Edit Users</a></li> 
+                <li><a href="{% url 'purchase_statistics' %}">Purchase Statistics</a></li>
             {% endif %}
             <li><a href="{% url 'view_cart' %}">View Cart</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>

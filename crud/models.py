@@ -18,8 +18,8 @@ class Item(models.Model):
     description = models.TextField(blank=True)
     variety = models.ForeignKey(Variety, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    quantity = models.IntegerField(default=0)
-    price = models.IntegerField(default=0)  # Price in Philippine Peso
+    stock = models.IntegerField(default=0)
+    price = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='product_photos/', null=True, blank=True)
 
     def __str__(self):
@@ -27,11 +27,11 @@ class Item(models.Model):
 
     @property
     def quantity_remain(self):
-        # Calculate remaining quantity, for example, quantity minus sold quantity
+        # Calculate remaining quantity, for example, stock minus sold quantity
         # Assuming you have a Purchase model tracking sold quantities
         from .models import Purchase
         sold_quantity = Purchase.objects.filter(item=self, status='Completed').aggregate(total=models.Sum('quantity'))['total'] or 0
-        return self.quantity - sold_quantity
+        return self.stock - sold_quantity
 
 class Purchase(models.Model):
     STATUS_CHOICES = [
