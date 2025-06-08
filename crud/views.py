@@ -234,7 +234,20 @@ def view_cart(request):
         items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price})
         total_quantity += quantity
         total_price += item_total_price
-    return render(request, 'crud/cart.html', {'items': items, 'total_quantity': total_quantity, 'total_price': total_price})
+
+    # Fetch recent purchases by status for the user (last 5 each)
+    completed_orders = Purchase.objects.filter(user=request.user, status='Completed').order_by('-purchase_date')[:5]
+    pending_orders = Purchase.objects.filter(user=request.user, status='Pending').order_by('-purchase_date')[:5]
+    ready_for_pickup_orders = Purchase.objects.filter(user=request.user, status='Ready for Pick Up').order_by('-purchase_date')[:5]
+
+    return render(request, 'crud/cart.html', {
+        'items': items,
+        'total_quantity': total_quantity,
+        'total_price': total_price,
+        'completed_orders': completed_orders,
+        'pending_orders': pending_orders,
+        'ready_for_pickup_orders': ready_for_pickup_orders,
+    })
 
 @login_required
 def update_cart_quantity(request):
@@ -281,7 +294,7 @@ def payment_demo(request):
             if item.quantity_remain >= quantity:
                 item.stock -= quantity  
                 item.save()
-                Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Completed')
+                Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Pending')
             else:
                 messages.error(request, f'Not enough stock for {item.name}.')
                 return redirect('view_cart')

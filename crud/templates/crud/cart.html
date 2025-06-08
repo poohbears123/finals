@@ -48,6 +48,87 @@
     {% else %}
     <p>Your cart is empty.</p>
     {% endif %}
+
+    <h2>Your Recent Orders</h2>
+
+    <h3>Pending Orders</h3>
+    {% if pending_orders %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Purchase Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in pending_orders %}
+            <tr>
+                <td>{{ order.item.name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.purchase_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You have no pending orders.</p>
+    {% endif %}
+
+    <h3>Ready for Pick Up Orders</h3>
+    {% if ready_for_pickup_orders %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Purchase Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in ready_for_pickup_orders %}
+            <tr>
+                <td>{{ order.item.name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.purchase_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You have no orders ready for pick up.</p>
+    {% endif %}
+
+    <h3>Completed Orders</h3>
+    {% if completed_orders %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Purchase Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in completed_orders %}
+            <tr>
+                <td>{{ order.item.name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.purchase_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You have no completed orders.</p>
+    {% endif %}
+
     <p><a href="{% url 'products_management' %}">Back to Products</a></p>
 </body>
 </html>
