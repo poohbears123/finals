@@ -78,9 +78,8 @@ def products_management(request):
 
     categories = Category.objects.all()
 
-    # Add stock to each product
     for product in products:
-        product.stock = product.stock  # stock field (renamed from quantity)
+        product.stock = product.stock 
 
     return render(request, 'crud/products.html', {
         'products': products,
@@ -280,15 +279,13 @@ def payment_demo(request):
             pk = int(pk_str)
             item = get_object_or_404(Item, pk=pk)
             if item.quantity_remain >= quantity:
-                item.stock -= quantity  # update actual stock field
+                item.stock -= quantity  
                 item.save()
-                # Create Purchase record with status Completed
                 Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Completed')
             else:
                 messages.error(request, f'Not enough stock for {item.name}.')
                 return redirect('view_cart')
         messages.success(request, 'Payment processed successfully.')
-        # Clear cart after payment
         request.session['cart'] = {}
 
         # TODO: Add Zapier integration here to send email after order confirmation
@@ -302,7 +299,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 @staff_member_required
 def purchase_statistics(request):
     purchases = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
-    # Aggregate total quantity per item
     total_per_item = Purchase.objects.values('item__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')
     context = {
         'purchases': purchases,
@@ -319,7 +315,6 @@ from django.contrib import messages
 
 @login_required
 def new_user(request):
-    # Remove or restrict access to user side
     if not request.user.is_staff:
         return redirect('main_menu')
     if request.method == 'POST':
@@ -327,7 +322,6 @@ def new_user(request):
         username = request.POST.get('username')
         role = request.POST.get('role')
         if user_id:
-            # Edit existing user
             user = get_object_or_404(User, id=user_id)
             if username and User.objects.filter(username=username).exclude(id=user_id).exists():
                 users = User.objects.all()
@@ -340,10 +334,7 @@ def new_user(request):
             password = request.POST.get('password')
             if password and password.strip() != '':
                 user.set_password(password)
-            # If password is empty or not provided, do not change the password
-            # Role update logic
             if request.user.is_superuser:
-                # Admin can set user, staff or admin
                 if role == 'admin':
                     user.is_staff = True
                     user.is_superuser = True
@@ -354,9 +345,7 @@ def new_user(request):
                     user.is_staff = False
                     user.is_superuser = False
             elif request.user.is_staff:
-                # Staff can set staff or user roles, including removing staff auth
                 if role == 'admin':
-                    # Staff cannot assign admin role
                     return render(request, 'crud/new_user.html', {'error': 'Staff cannot assign admin role', 'users': User.objects.all()})
                 elif role == 'staff':
                     user.is_staff = True

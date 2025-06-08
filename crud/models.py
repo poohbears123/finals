@@ -27,8 +27,6 @@ class Item(models.Model):
 
     @property
     def quantity_remain(self):
-        # Calculate remaining quantity, for example, stock minus sold quantity
-        # Assuming you have a Purchase model tracking sold quantities
         from .models import Purchase
         sold_quantity = Purchase.objects.filter(item=self, status='Completed').aggregate(total=models.Sum('quantity'))['total'] or 0
         return self.stock - sold_quantity
