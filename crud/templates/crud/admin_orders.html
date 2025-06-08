@@ -28,18 +28,17 @@
                     <td>{{ purchase.quantity }}</td>
                     <td>{{ purchase.status }}</td>
                     <td>
-                        <input type="hidden" name="purchase_id" value="{{ purchase.id }}">
-                        <select name="status">
+                        <select name="status_{{ purchase.id }}">
                             <option value="Pending" {% if purchase.status == "Pending" %}selected{% endif %}>Pending</option>
                             <option value="Ready for Pick Up" {% if purchase.status == "Ready for Pick Up" %}selected{% endif %}>Ready for Pick Up</option>
                             <option value="Completed" {% if purchase.status == "Completed" %}selected{% endif %}>Completed</option>
                         </select>
-                        <button type="submit">Update</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <button type="submit">Update All</button>
     </form>
     {% else %}
     <p>No orders found.</p>

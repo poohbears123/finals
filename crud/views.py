@@ -409,25 +409,34 @@ def past_orders(request):
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Purchase
+
 @staff_member_required
 @csrf_protect
 def admin_orders(request):
     if request.method == 'POST':
-        purchase_id = request.POST.get('purchase_id')
-        new_status = request.POST.get('status')
-        if purchase_id and new_status:
-            try:
-                purchase = Purchase.objects.get(id=purchase_id)
-                purchase.status = new_status
-                purchase.save()
-                messages.success(request, f"Order status updated for purchase {purchase_id}.")
-            except Purchase.DoesNotExist:
-                messages.error(request, "Purchase not found.")
+        updated_count = 0
+        for key, value in request.POST.items():
+            if key.startswith('status_'):
+                try:
+                    purchase_id = int(key.split('_')[1])
+                    purchase = Purchase.objects.get(id=purchase_id)
+                    if purchase.status != value:
+                        purchase.status = value
+                        purchase.save()
+                        updated_count += 1
+                except (Purchase.DoesNotExist, ValueError):
+                    continue
+        if updated_count > 0:
+            messages.success(request, f"{updated_count} order(s) updated successfully.")
         else:
-            messages.error(request, "Invalid data submitted.")
+            messages.info(request, "No orders were updated.")
         return redirect('admin_orders')
     else:
-        purchases = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
+        purchases = Purchase.objects.select_related('user', 'item').exclude(status='Completed').order_by('-purchase_date')
         return render(request, 'crud/admin_orders.html', {'purchases': purchases})
 
 @login_required
