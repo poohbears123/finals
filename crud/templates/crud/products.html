@@ -1,31 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Products Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-   
-    <form method="get" action="{% url 'products_management' %}">
-        <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" />
-        <select name="category">
-            <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All Categories</option>
-            {% for category in categories %}
-            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Filter</button>
-    </form>
-    {% if request.user.is_staff %}
-    <p><a href="{% url 'item_create' %}">Add New Product</a></p>
-    {% endif %}
-    <p><a href="{% url 'view_cart' %}">View Cart</a></p>
+<body class="bg-slate-200 min-h-screen flex flex-col items-center p-4">
+
+    <div class="w-full max-w-7xl bg-slate-300 rounded-lg p-6 shadow-lg flex flex-col gap-6">
+
+        <h2 class="text-center text-2xl font-semibold mb-4">Featured Products</h2>
+
+        <div class="flex justify-between items-center mb-4">
+            <a href="{% url 'main_menu' %}" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition">Return to Menu</a>
+            <a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">View Cart</a>
+        </div>
+
+        {% if request.user.is_staff %}
+        <p class="text-right mb-4"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add New Product</a></p>
+        {% endif %}
+
+        <div class="flex gap-6">
+
+            <!-- Sidebar Filters -->
+            <aside class="w-48 bg-slate-100 rounded-lg p-4 flex flex-col gap-4">
+                <form method="get" action="{% url 'products_management' %}" class="flex flex-col gap-4">
+
+                    <div>
+                        <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" class="w-full rounded border border-gray-300 p-2 mb-2" />
+                    </div>
+
+                    <div>
+                        <label for="category" class="block mb-1 font-medium">Categories</label>
+                        <select name="category" id="category" class="w-full rounded border border-gray-300 p-2">
+                            <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="variety" class="block mb-1 font-medium">Type</label>
+                        <select name="variety" id="variety" class="w-full rounded border border-gray-300 p-2">
+                            <option value="all" selected>All Types</option>
+                            {% for variety in varieties %}
+                            <option value="{{ variety.id }}" {% if selected_variety == variety.id|stringformat:"s" %}selected{% endif %}>{{ variety.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="size" class="block mb-1 font-medium">Size</label>
+                        <select name="size" id="size" class="w-full rounded border border-gray-300 p-2">
+                            <option value="all" selected>All Sizes</option>
+                            {% for size_option in size_options %}
+                            <option value="{{ size_option }}" {% if selected_size == size_option %}selected{% endif %}>{{ size_option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="mt-4 bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition">Filter</button>
+                </form>
+            </aside>
+
+            <!-- Products Grid -->
+            <section class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for product in products %}
+                <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center">
+                    {% if product.photo %}
+                        <img src="{{ product.photo.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded mb-4" />
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded mb-4">
+                            <span class="text-gray-500 font-semibold">No Image</span>
+                        </div>
+                    {% endif %}
+                    <div class="flex gap-4 w-full justify-between mb-2">
+                        <button title="Add to Favorites" class="text-teal-600 hover:text-teal-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <button title="Add to Cart" onclick="toggleQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})" class="text-teal-600 hover:text-teal-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m4-9l2 9" />
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="text-lg font-semibold text-center">{{ product.name }}</h3>
+                    <p class="text-sm text-gray-600">Size: {{ product.size }}</p>
+                    <p class="text-teal-700 font-bold">PHP {{ product.price }}</p>
+                    <p><strong>Description:</strong> {{ product.description }}</p>
+                    <p><strong>Variety:</strong> {{ product.variety }}</p>
+                    <p><strong>Quantity Remain:</strong> {{ product.quantity_remain }}</p>
+                    <p>
+                        <a href="{% url 'item_detail' product.id %}">View</a> |
+                        {% if request.user.is_staff %}
+                        <a href="{% url 'item_update' product.id %}">Edit</a> |
+                        <a href="{% url 'item_delete' product.id %}">Delete</a> |
+                        {% endif %}
+                        <a href="javascript:void(0);" onclick="toggleQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})">Add to Cart</a>
+                    </p>
+                </div>
+                {% empty %}
+                <p>No products found.</p>
+                {% endfor %}
+            </section>
+
+        </div>
+
+    </div>
+
     <div id="popup-message" style="display:none; position: fixed; top: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
 
     <div id="quantity-popup" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
         background-color: white; border: 1px solid #ccc; padding: 20px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h3>Add to Cart</h3>
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="text-lg font-semibold">Add to Cart</h3>
+            <button id="popup-close-btn" aria-label="Close" class="text-gray-600 hover:text-gray-900 font-bold text-xl leading-none" onclick="closeQuantityPopup()">×</button>
+        </div>
         <p id="popup-item-name"></p>
         <p>Available Quantity: <span id="popup-item-quantity"></span></p>
         <form id="add-to-cart-form" method="post" action="{% url 'add_to_cart' %}">
@@ -34,10 +128,10 @@
             <label for="quantity-input">Quantity:</label>
             <input type="number" id="quantity-input" name="quantity" min="1" value="1" required />
             <br/><br/>
-            <button type="submit">Add</button>
-            <button type="button" onclick="closeQuantityPopup()">Cancel</button>
+            <button type="submit" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add</button>
+            <button type="button" onclick="closeQuantityPopup()" class="ml-2 py-2 px-4 rounded border border-gray-300 hover:bg-gray-100 transition">Cancel</button>
         </form>
-        <p id="popup-error" style="color: red; display: none;"></p>
+        <p id="popup-error" class="text-red-600 mt-2 hidden"></p>
     </div>
 
     <script>
@@ -53,74 +147,26 @@
             {% endif %}
         };
 
-        function openQuantityPopup(itemId, itemName, maxQuantity) {
+        function toggleQuantityPopup(itemId, itemName, maxQuantity) {
+            const popup = document.getElementById('quantity-popup');
+            if (popup.style.display === 'block' && document.getElementById('popup-item-id').value == itemId) {
+                closeQuantityPopup();
+                return;
+            }
             document.getElementById('popup-item-id').value = itemId;
             document.getElementById('popup-item-name').textContent = itemName;
             document.getElementById('popup-item-quantity').textContent = maxQuantity;
             const quantityInput = document.getElementById('quantity-input');
             quantityInput.max = maxQuantity;
             quantityInput.value = 1;
-            document.getElementById('popup-error').style.display = 'none';
-            document.getElementById('quantity-popup').style.display = 'block';
+            document.getElementById('popup-error').classList.add('hidden');
+            popup.style.display = 'block';
         }
 
         function closeQuantityPopup() {
             document.getElementById('quantity-popup').style.display = 'none';
         }
-
-        document.getElementById('add-to-cart-form').addEventListener('submit', function(event) {
-            const quantityInput = document.getElementById('quantity-input');
-            const maxQuantity = parseInt(quantityInput.max);
-            const quantity = parseInt(quantityInput.value);
-            if (quantity < 1 || quantity > maxQuantity) {
-                event.preventDefault();
-                const errorElem = document.getElementById('popup-error');
-                errorElem.textContent = 'Please enter a valid quantity between 1 and ' + maxQuantity + '.';
-                errorElem.style.display = 'block';
-            }
-        });
     </script>
-    <style>
-        .product-card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            width: 300px;
-        }
-        .product-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-    </style>
-    <div class="product-container">
-        {% for product in products %}
-        <div class="product-card">
-            {% if product.photo %}
-                <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto; margin-bottom: 10px;">
-            {% else %}
-                <p style="color: red; font-weight: bold;">Photo error: No photo available</p>
-            {% endif %}
-            <p><strong>Name:</strong> {{ product.name }}</p>
-            <p><strong>Price:</strong> PHP {{ product.price }}</p>
-            <p><strong>Description:</strong> {{ product.description }}</p>
-            <p><strong>Variety:</strong> {{ product.variety }}</p>
-            <p><strong>Quantity Remain:</strong> {{ product.quantity_remain }}</p>
-            <p>
-                <a href="{% url 'item_detail' product.id %}">View</a> |
-                {% if request.user.is_staff %}
-                <a href="{% url 'item_update' product.id %}">Edit</a> |
-                <a href="{% url 'item_delete' product.id %}">Delete</a> |
-                {% endif %}
-                <a href="javascript:void(0);" onclick="openQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})">Add to Cart</a>
-            </p>
-        </div>
-        {% empty %}
-        <p>No products found.</p>
-        {% endfor %}
-    </div>
-    <p><a href="{% url 'main_menu' %}">Back to Main Menu</a></p>
+
 </body>
 </html>

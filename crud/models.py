@@ -14,10 +14,18 @@ class Variety(models.Model):
         return self.name
 
 class Item(models.Model):
+    SIZE_CHOICES = [
+        ('S', 'S'),
+        ('M', 'M'),
+        ('L', 'L'),
+        ('XL', 'XL'),
+        ('XXL', 'XXL'),
+    ]
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     variety = models.ForeignKey(Variety, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    size = models.CharField(max_length=3, choices=SIZE_CHOICES, default='M')
     stock = models.IntegerField(default=0)
     price = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='product_photos/', null=True, blank=True)

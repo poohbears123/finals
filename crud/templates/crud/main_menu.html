@@ -1,41 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Main Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Welcome to the Main Menu</h1>
-    <p>You have successfully logged in.</p>
-    <div id="popup-message" style="display:none; position: fixed; top: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
-    <script>
-        window.onload = function() {
-            const popup = document.getElementById('popup-message');
-            {% if messages %}
-                {% for message in messages %}
-                    popup.style.display = 'block';
-                    popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
-                    popup.textContent = "{{ message }}";
-                    setTimeout(() => { popup.style.display = 'none'; }, 3000);
-                {% endfor %}
-            {% endif %}
-        };
-    </script>
-    <p>Debug: is_admin={{ is_admin }}, user.is_staff={{ user.is_staff }}</p>
-    <nav>
-        <ul>
-            <li><a href="{% url 'products_management' %}">Products</a></li>
-            <li><a href="{% url 'past_orders' %}">Past Orders</a></li>
-            <li><a href="{% url 'profile_edit' %}">Edit Profile</a></li> 
-            {% if user.is_superuser %}
-                <li><a href="{% url 'edit_users' %}">Edit Users</a></li> 
-                <li><a href="{% url 'purchase_statistics' %}">Purchase Statistics</a></li>
-                <li><a href="{% url 'admin_orders' %}">Admin Orders</a></li>
-            {% endif %}
-            <li><a href="{% url 'view_cart' %}">View Cart</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-    </nav>
+<body class="bg-slate-100 min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
+
+        <h1 class="text-3xl font-bold mb-6 text-center">Welcome to the Main Menu</h1>
+        <p class="mb-6 text-center">You have successfully logged in.</p>
+
+        <div id="popup-message" class="hidden fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50"></div>
+        <script>
+            window.onload = function() {
+                const popup = document.getElementById('popup-message');
+                {% if messages %}
+                    {% for message in messages %}
+                        popup.classList.remove('hidden');
+                        popup.classList.add('{% if message.tags == "error" %}bg-red-600{% else %}bg-green-600{% endif %}');
+                        popup.textContent = "{{ message }}";
+                        setTimeout(() => { popup.classList.add('hidden'); }, 3000);
+                    {% endfor %}
+                {% endif %}
+            };
+        </script>
+
+        <nav>
+            <ul class="space-y-3 text-center">
+                <li><a href="{% url 'products_management' %}" class="text-blue-600 hover:underline font-semibold">Products</a></li>
+                <li><a href="{% url 'past_orders' %}" class="text-blue-600 hover:underline font-semibold">Past Orders</a></li>
+                <li><a href="{% url 'profile_edit' %}" class="text-blue-600 hover:underline font-semibold">Edit Profile</a></li>
+                {% if user.is_superuser %}
+                    <li><a href="{% url 'edit_users' %}" class="text-blue-600 hover:underline font-semibold">Edit Users</a></li>
+                    <li><a href="{% url 'purchase_statistics' %}" class="text-blue-600 hover:underline font-semibold">Purchase Statistics</a></li>
+                    <li><a href="{% url 'admin_orders' %}" class="text-blue-600 hover:underline font-semibold">Admin Orders</a></li>
+                {% endif %}
+                <li><a href="{% url 'view_cart' %}" class="text-blue-600 hover:underline font-semibold">View Cart</a></li>
+                <li><a href="{% url 'logout' %}" class="text-blue-600 hover:underline font-semibold">Logout</a></li>
+            </ul>
+        </nav>
+
+    </div>
+
 </body>
 </html>

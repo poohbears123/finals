@@ -1,21 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="scroll-smooth">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Item List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Item List</h2>
-    <a href="{% url 'item_create' %}">Create New Item</a>
-    <ul>
-        {% for item in items %}
-            <li>
-                <a href="{% url 'item_detail' item.pk %}">{{ item.name }}</a>
-                - <a href="{% url 'item_update' item.pk %}">Edit</a>
-                - <a href="{% url 'item_delete' item.pk %}">Delete</a>
+<body class="bg-slate-100 min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
+
+        <h2 class="text-2xl font-semibold mb-6 text-center">Item List</h2>
+
+        <div class="mb-6 text-center">
+            <a href="{% url 'item_create' %}" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition font-semibold">Create New Item</a>
+        </div>
+
+        {% if items %}
+        <ul class="space-y-3">
+            {% for item in items %}
+            <li class="border border-gray-300 rounded p-4 hover:shadow-md transition">
+                <a href="{% url 'item_detail' item.pk %}" class="text-blue-600 hover:underline font-semibold">{{ item.name }}</a>
+                <span class="mx-2">-</span>
+                <a href="{% url 'item_update' item.pk %}" class="text-green-600 hover:underline font-semibold">Edit</a>
+                <span class="mx-2">-</span>
+                <a href="{% url 'item_delete' item.pk %}" class="text-red-600 hover:underline font-semibold">Delete</a>
             </li>
-        {% empty %}
-            <li>No items available.</li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-gray-500">No items available.</p>
+        {% endif %}
+
+    </div>
+
 </body>
 </html>

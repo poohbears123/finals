@@ -1,15 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="scroll-smooth">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Delete Item Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Delete Item Confirmation</h2>
-    <p>Are you sure you want to delete item "{{ item.name }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Yes, delete item</button>
-        <a href="{% url 'products_management' %}">Cancel</a>
-    </form>
+<body class="bg-slate-100 min-h-screen p-6 flex items-center justify-center">
+
+    <div class="max-w-md bg-white rounded-lg shadow p-8 text-center">
+
+        <h2 class="text-2xl font-semibold mb-4">Delete Item Confirmation</h2>
+        <p class="mb-6">Are you sure you want to delete item <span class="font-semibold">{{ item.name }}</span>?</p>
+
+        <form method="post" class="space-x-4">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition font-semibold">Yes, delete item</button>
+            <a href="{% url 'products_management' %}" class="inline-block bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition font-semibold">Cancel</a>
+        </form>
+
+    </div>
+
 </body>
 </html>

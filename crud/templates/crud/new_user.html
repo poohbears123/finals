@@ -1,89 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="scroll-smooth">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</h2>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {% if not profile_edit %}
-        <input type="hidden" name="user_id" id="id_user_id" value="">
+<body class="bg-slate-100 min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
+
+        <h2 class="text-2xl font-semibold mb-6 text-center">{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</h2>
+
+        {% if profile_edit %}
+        <div class="mb-4 text-center">
+            <a href="{% url 'edit_users' %}" class="inline-block bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">
+                &larr; Back to Users List
+            </a>
+        </div>
         {% endif %}
-        <label for="id_username">Username:</label>
-        <input type="text" name="username" id="id_username" value="{% if profile_edit %}{{ user.username }}{% endif %}" {% if not profile_edit %}required{% endif %}><br>
-        <label for="id_first_name">First Name:</label>
-        <input type="text" name="first_name" id="id_first_name" value="{% if profile_edit %}{{ user.first_name }}{% endif %}"><br>
-        <label for="id_last_name">Last Name:</label>
-        <input type="text" name="last_name" id="id_last_name" value="{% if profile_edit %}{{ user.last_name }}{% endif %}"><br>
-        <label for="id_email">Email:</label>
-        <input type="email" name="email" id="id_email" value="{% if profile_edit %}{{ user.email }}{% endif %}"><br>
-        <label for="id_password">Password{% if profile_edit %} (leave blank to keep current){% endif %}:</label>
-        <input type="password" name="password" id="id_password"><br>
-        {% if not profile_edit %}
-        <label for="id_role">Role:</label>
-        <select name="role" id="id_role" required>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-            <option value="user">User</option>
-        </select><br>
+
+        {% if error %}
+            <p class="text-red-600 mb-4 text-center">{{ error }}</p>
         {% endif %}
-        <button type="submit" id="submit_button">{% if profile_edit %}Update Profile{% else %}Create User{% endif %}</button>
-    </form>
-    {% if not profile_edit %}
-    <h3>Existing Users</h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    <button onclick="editUser({{ user.id }}, '{{ user.username }}', '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}')">Edit</button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">No users found.</td>
-            </tr>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="mb-2 text-center {% if message.tags == 'error' %}text-red-600{% else %}text-green-600{% endif %}">{{ message }}</p>
             {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    <a href="{% url 'main_menu' %}">Back to Main Menu</a>
-<script>
-{% if not profile_edit %}
-function editUser(userId, username, firstName, lastName, email) {
-    document.getElementById('id_user_id').value = userId;
-    document.getElementById('id_username').value = username;
-    document.getElementById('id_first_name').value = firstName;
-    document.getElementById('id_last_name').value = lastName;
-    document.getElementById('id_email').value = email;
-    document.getElementById('id_password').value = '';
-    document.getElementById('submit_button').textContent = 'Update User';
-}
-{% endif %}
-</script>
+        {% endif %}
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% if not profile_edit %}
+            <input type="hidden" name="user_id" id="id_user_id" value="">
+            {% endif %}
+            {% if profile_edit %}
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <label for="id_username" class="block mb-1 font-medium text-gray-700">Username:</label>
+                    <input type="text" name="username" id="id_username" value="{{ user.username }}"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1">
+                    <label for="id_password" class="block mb-1 font-medium text-gray-700">Password (leave blank to keep current):</label>
+                    <input type="password" name="password" id="id_password"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+            </div>
+            <div class="flex space-x-4 mt-4">
+                <div class="flex-1">
+                    <label for="id_first_name" class="block mb-1 font-medium text-gray-700">First Name:</label>
+                    <input type="text" name="first_name" id="id_first_name" value="{{ user.first_name }}"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1">
+                    <label for="id_last_name" class="block mb-1 font-medium text-gray-700">Last Name:</label>
+                    <input type="text" name="last_name" id="id_last_name" value="{{ user.last_name }}"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+            </div>
+            <div class="mt-4">
+                <label for="id_email" class="block mb-1 font-medium text-gray-700">Email:</label>
+                <input type="email" name="email" id="id_email" value="{{ user.email }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <label for="id_role" class="block mb-1 font-medium text-gray-700">Role:</label>
+                <select name="role" id="id_role" required
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="admin" {% if user.is_superuser and user.is_staff %}selected{% endif %}>Admin</option>
+                    <option value="staff" {% if user.is_staff and not user.is_superuser %}selected{% endif %}>Staff</option>
+                    <option value="user" {% if not user.is_staff and not user.is_superuser %}selected{% endif %}>User</option>
+                </select>
+            </div>
+            {% else %}
+            <div>
+                <label for="id_username" class="block mb-1 font-medium text-gray-700">Username:</label>
+                <input type="text" name="username" id="id_username" required
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <label for="id_password" class="block mb-1 font-medium text-gray-700">Password:</label>
+                <input type="password" name="password" id="id_password" required
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="flex space-x-4 mt-4">
+                <div class="flex-1">
+                    <label for="id_first_name" class="block mb-1 font-medium text-gray-700">First Name:</label>
+                    <input type="text" name="first_name" id="id_first_name" value=""
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1">
+                    <label for="id_last_name" class="block mb-1 font-medium text-gray-700">Last Name:</label>
+                    <input type="text" name="last_name" id="id_last_name" value=""
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+            </div>
+            <div class="mt-4">
+                <label for="id_email" class="block mb-1 font-medium text-gray-700">Email:</label>
+                <input type="email" name="email" id="id_email" value=""
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <label for="id_role" class="block mb-1 font-medium text-gray-700">Role:</label>
+                <select name="role" id="id_role" required
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                    <option value="user" selected>User</option>
+                </select>
+            </div>
+            {% endif %}
+            <button type="submit" id="submit_button" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition font-semibold">{% if profile_edit %}Update Profile{% else %}Create User{% endif %}</button>
+        </form>
+
+        {% if not profile_edit %}
+        <h3 class="text-xl font-semibold mt-10 mb-4 text-center">Existing Users</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">ID</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Username</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">First Name</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Last Name</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Email</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="border-t border-gray-200 hover:bg-gray-50">
+                        <td class="py-3 px-6">{{ user.id }}</td>
+                        <td class="py-3 px-6">{{ user.username }}</td>
+                        <td class="py-3 px-6">{{ user.first_name }}</td>
+                        <td class="py-3 px-6">{{ user.last_name }}</td>
+                        <td class="py-3 px-6">{{ user.email }}</td>
+                        <td class="py-3 px-6">
+                            <a href="{% url 'edit_users' %}?user_id={{ user.id }}" 
+                                class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition font-semibold">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-3 px-6 text-center text-gray-500">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <p class="mt-6 text-center">
+            <a href="{% url 'main_menu' %}" class="text-blue-600 hover:underline font-semibold">Back to Main Menu</a>
+        </p>
+
+    </div>
+
 </body>
 </html>

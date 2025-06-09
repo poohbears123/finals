@@ -15,6 +15,12 @@
         <input type="text" name="variety" id="id_variety" value="{{ item.variety|default_if_none:'' }}"><br>
         <label for="id_category">Category:</label>
         <input type="text" name="category" id="id_category" value="{{ item.category.name|default_if_none:'' }}"><br>
+        <label for="id_size">Size:</label>
+        <select name="size" id="id_size" required>
+            {% for size_option in size_options %}
+                <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
+            {% endfor %}
+        </select><br>
         <label for="id_stock">Stock:</label>
         <input type="number" name="stock" id="id_stock" value="{{ item.stock|default_if_none:0 }}"><br>
         <label for="id_photo">Photo:</label>

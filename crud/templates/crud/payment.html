@@ -1,17 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Payment Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Payment Demo</h1>
-    <p>This is a demo payment page. Click the button below to simulate payment processing.</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Pay Now</button>
-    </form>
-    <p><a href="{% url 'view_cart' %}">Back to Cart</a></p>
+<body class="bg-slate-100 min-h-screen p-6 flex items-center justify-center">
+
+    <div class="max-w-md bg-white rounded-lg shadow p-8 text-center">
+
+        <h1 class="text-3xl font-bold mb-4">Payment Demo</h1>
+        <p class="mb-6">This is a demo payment page. Click the button below to simulate payment processing.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700 transition font-semibold">Pay Now</button>
+        </form>
+
+        <p class="mt-6">
+            <a href="{% url 'view_cart' %}" class="text-blue-600 hover:underline font-semibold">Back to Cart</a>
+        </p>
+
+    </div>
+
 </body>
 </html>

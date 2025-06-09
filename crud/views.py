@@ -104,7 +104,7 @@ def item_create(request):
         name = request.POST.get('name')
         if Item.objects.filter(name=name).exists():
             messages.error(request, "Product with this name already exists.")
-            return render(request, 'crud/item_form.html')
+            return render(request, 'crud/item_form.html', {'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         description = request.POST.get('description')
         variety_id = request.POST.get('variety', '')
         variety = None
@@ -117,12 +117,13 @@ def item_create(request):
         category = None
         if category_name:
             category, created = Category.objects.get_or_create(name=category_name)
+        size = request.POST.get('size', 'M')
         stock = int(request.POST.get('stock', 0))
         price = int(request.POST.get('price', 0))
         photo = request.FILES.get('photo')
-        Item.objects.create(name=name, description=description, variety=variety, category=category, stock=stock, price=price, photo=photo)
+        Item.objects.create(name=name, description=description, variety=variety, category=category, size=size, stock=stock, price=price, photo=photo)
         return redirect('products_management')
-    return render(request, 'crud/item_form.html')
+    return render(request, 'crud/item_form.html', {'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
 
 from django.contrib import messages
 
@@ -136,7 +137,7 @@ def item_update(request, pk):
         name = request.POST.get('name')
         if name != item.name and Item.objects.filter(name=name).exists():
             messages.error(request, "Product with this name already exists.")
-            return render(request, 'crud/item_form.html', {'item': item})
+            return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         item.name = name
         item.description = request.POST.get('description')
         variety_id = request.POST.get('variety', '')
@@ -154,16 +155,18 @@ def item_update(request, pk):
             item.category = category
         else:
             item.category = None
+        size = request.POST.get('size', 'M')
+        item.size = size
         stock = int(request.POST.get('stock', 0))
         # Prevent negative values
         if stock < 0:
             messages.error(request, "Stock cannot be negative.")
-            return render(request, 'crud/item_form.html', {'item': item})
+            return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         item.stock = stock
         price = int(request.POST.get('price', 0))
         if price < 0:
             messages.error(request, "Price cannot be negative.")
-            return render(request, 'crud/item_form.html', {'item': item})
+            return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         item.price = price
         photo = request.FILES.get('photo')
         if photo:
@@ -171,7 +174,7 @@ def item_update(request, pk):
         item.save()
         messages.success(request, "Product updated successfully.")
         return redirect('products_management')
-    return render(request, 'crud/item_form.html', {'item': item})
+    return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
 
 @login_required
 def item_delete(request, pk):
@@ -338,7 +341,7 @@ def new_user(request):
             user = get_object_or_404(User, id=user_id)
             if username and User.objects.filter(username=username).exclude(id=user_id).exists():
                 users = User.objects.all()
-                return render(request, 'crud/new_user.html', {'error': 'Username already exists', 'users': users})
+                return render(request, 'crud/new_user.html', {'error': 'Username already exists', 'users': users, 'profile_edit': True})
             if username:
                 user.username = username
             user.first_name = request.POST.get('first_name', '')
@@ -359,7 +362,7 @@ def new_user(request):
                     user.is_superuser = False
             elif request.user.is_staff:
                 if role == 'admin':
-                    return render(request, 'crud/new_user.html', {'error': 'Staff cannot assign admin role', 'users': User.objects.all()})
+                    return render(request, 'crud/new_user.html', {'error': 'Staff cannot assign admin role', 'users': User.objects.all(), 'profile_edit': True})
                 elif role == 'staff':
                     user.is_staff = True
                     user.is_superuser = False
@@ -367,14 +370,19 @@ def new_user(request):
                     user.is_staff = False
                     user.is_superuser = False
                 else:
-                    return render(request, 'crud/new_user.html', {'error': 'Invalid role selected', 'users': User.objects.all()})
+                    return render(request, 'crud/new_user.html', {'error': 'Invalid role selected', 'users': User.objects.all(), 'profile_edit': True})
             user.save()
             return redirect('edit_users')
         else:
             users = User.objects.all()
             return render(request, 'crud/new_user.html', {'error': 'Please provide username and password', 'users': users})
-    users = User.objects.all()
-    return render(request, 'crud/new_user.html', {'users': users})
+    else:
+        user_id = request.GET.get('user_id') or request.GET.get('edit_user_id')
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
+        users = User.objects.all()
+        return render(request, 'crud/new_user.html', {'users': users})
 
 @login_required
 def order_confirmation(request):

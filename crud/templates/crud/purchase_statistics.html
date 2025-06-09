@@ -1,62 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Purchase Statistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Purchase Statistics</h2>
+<body class="bg-slate-100 min-h-screen p-6">
 
-    <h3>Total Quantity Purchased Per Item</h3>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Total Quantity Purchased</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in total_per_item %}
-            <tr>
-                <td>{{ entry.item__name }}</td>
-                <td>{{ entry.total_quantity }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="2">No purchase data available.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="max-w-5xl mx-auto bg-white rounded-lg shadow p-6">
 
-    <h3>Recent Purchases</h3>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Purchase Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for purchase in purchases %}
-            <tr>
-                <td>{{ purchase.user.username }}</td>
-                <td>{{ purchase.item.name }}</td>
-                <td>{{ purchase.quantity }}</td>
-                <td>{{ purchase.purchase_date|date:"Y-m-d H:i:s" }}</td>
-                <td>{{ purchase.status }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No recent purchases.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p><a href="{% url 'main_menu' %}">Back to Main Menu</a></p>
+        <h2 class="text-2xl font-semibold mb-6 text-center">Purchase Statistics</h2>
+
+        <h3 class="text-xl font-semibold mb-4">Total Quantity Purchased Per Item</h3>
+        <div class="overflow-x-auto mb-10">
+            <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Item Name</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Total Quantity Purchased</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in total_per_item %}
+                    <tr class="border-t border-gray-200 hover:bg-gray-50">
+                        <td class="py-3 px-6">{{ entry.item__name }}</td>
+                        <td class="py-3 px-6">{{ entry.total_quantity }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="py-3 px-6 text-center text-gray-500">No purchase data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold mb-4">Recent Purchases</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">User</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Item</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Quantity</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Purchase Date</th>
+                        <th class="py-3 px-6 text-left font-semibold text-gray-700">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr class="border-t border-gray-200 hover:bg-gray-50">
+                        <td class="py-3 px-6">{{ purchase.user.username }}</td>
+                        <td class="py-3 px-6">{{ purchase.item.name }}</td>
+                        <td class="py-3 px-6">{{ purchase.quantity }}</td>
+                        <td class="py-3 px-6">{{ purchase.purchase_date|date:"Y-m-d H:i:s" }}</td>
+                        <td class="py-3 px-6">{{ purchase.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-3 px-6 text-center text-gray-500">No recent purchases.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="mt-6 text-center">
+            <a href="{% url 'main_menu' %}" class="text-blue-600 hover:underline font-semibold">Back to Main Menu</a>
+        </p>
+
+    </div>
+
 </body>
 </html>
