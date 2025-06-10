@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 # Zapier webhook URL for order notifications
-ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/23306356/uy1oqia/'
+ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/23306356/uymcexs/'
 
 LOGIN_REDIRECT_URL = '/main-menu/'
 LOGOUT_REDIRECT_URL = '/login/'

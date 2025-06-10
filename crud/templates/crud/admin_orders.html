@@ -61,6 +61,30 @@
         <p>No orders found.</p>
         {% endif %}
 
+        {% if purchases.has_other_pages %}
+        <div class="mt-4 flex justify-center space-x-2">
+            {% if purchases.has_previous %}
+            <a href="?page={{ purchases.previous_page_number }}" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Previous</a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-200 text-gray-500 rounded cursor-not-allowed">Previous</span>
+            {% endif %}
+
+            {% for num in purchases.paginator.page_range %}
+                {% if purchases.number == num %}
+                <span class="px-3 py-1 bg-green-400 text-white rounded font-semibold">{{ num }}</span>
+                {% elif num > purchases.number|add:'-3' and num < purchases.number|add:'3' %}
+                <a href="?page={{ num }}" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if purchases.has_next %}
+            <a href="?page={{ purchases.next_page_number }}" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Next</a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-200 text-gray-500 rounded cursor-not-allowed">Next</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
 
 </body>

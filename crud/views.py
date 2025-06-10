@@ -449,6 +449,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Purchase
 
+from django.core.paginator import Paginator
+
 @staff_member_required
 @csrf_protect
 def admin_orders(request):
@@ -471,7 +473,10 @@ def admin_orders(request):
             messages.info(request, "No orders were updated.")
         return redirect('admin_orders')
     else:
-        purchases = Purchase.objects.select_related('user', 'item').exclude(status='Completed').order_by('-purchase_date')
+        purchases_list = Purchase.objects.select_related('user', 'item').exclude(status='Completed').order_by('-purchase_date')
+        paginator = Paginator(purchases_list, 10)  # 10 orders per page
+        page_number = request.GET.get('page')
+        purchases = paginator.get_page(page_number)
         return render(request, 'crud/admin_orders.html', {'purchases': purchases})
 
 from django.contrib import messages
