@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crud',
 ]
+
+# Zapier webhook URL for order notifications
+ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/23306356/uy1oqia/'
 
 LOGIN_REDIRECT_URL = '/main-menu/'
 LOGOUT_REDIRECT_URL = '/login/'

@@ -286,26 +286,39 @@ from .models import Purchase
 from django.db.models import Sum
 from django.utils.timezone import now
 from django.contrib.admin.views.decorators import staff_member_required
+from .utils import send_to_zapier
 
 @login_required
 def payment_demo(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
+        order_details = []
         for pk_str, quantity in cart.items():
             pk = int(pk_str)
             item = get_object_or_404(Item, pk=pk)
             if item.quantity_remain >= quantity:
                 item.stock -= quantity  
                 item.save()
-                Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Pending')
+                purchase = Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Pending')
+                order_details.append({
+                    'item_name': item.name,
+                    'quantity': quantity,
+                    'price': item.price,
+                    'total_price': item.price * quantity,
+                })
             else:
                 messages.error(request, f'Not enough stock for {item.name}.')
                 return redirect('view_cart')
         messages.success(request, 'Payment processed successfully.')
         request.session['cart'] = {}
 
-        # TODO: Add Zapier integration here to send email after order confirmation
-        # Example: send_order_confirmation_email(user=request.user, order_details=cart)
+        # Send order confirmation to Zapier
+        payload = {
+            'user': request.user.username,
+            'email': request.user.email,
+            'order_details': order_details,
+        }
+        send_to_zapier(payload)
 
         return redirect('order_confirmation')
     return render(request, 'crud/payment.html')
@@ -330,59 +343,73 @@ from .models import Purchase
 from django.contrib import messages
 
 @login_required
-def new_user(request):
+def edit_users(request):
     if not request.user.is_staff:
         return redirect('main_menu')
+
+    user_id = request.GET.get('user_id')
+    profile_edit = False
+    user_obj = None
+
+    if user_id:
+        try:
+            user_obj = User.objects.get(id=user_id)
+            profile_edit = True
+        except User.DoesNotExist:
+            user_obj = None
+            profile_edit = False
+
     if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        username = request.POST.get('username')
-        role = request.POST.get('role')
-        if user_id:
-            user = get_object_or_404(User, id=user_id)
-            if username and User.objects.filter(username=username).exclude(id=user_id).exists():
-                users = User.objects.all()
-                return render(request, 'crud/new_user.html', {'error': 'Username already exists', 'users': users, 'profile_edit': True})
-            if username:
-                user.username = username
-            user.first_name = request.POST.get('first_name', '')
-            user.last_name = request.POST.get('last_name', '')
-            user.email = request.POST.get('email', '')
+        if profile_edit and user_obj:
+            # Update existing user
+            username = request.POST.get('username')
+            if username and User.objects.filter(username=username).exclude(id=user_obj.id).exists():
+                messages.error(request, 'Username already exists')
+                return render(request, 'crud/new_user.html', {'user': user_obj, 'profile_edit': True, 'users': User.objects.all()})
+            user_obj.username = username
+            user_obj.first_name = request.POST.get('first_name', '')
+            user_obj.last_name = request.POST.get('last_name', '')
+            user_obj.email = request.POST.get('email', '')
             password = request.POST.get('password')
             if password and password.strip() != '':
-                user.set_password(password)
-            if request.user.is_superuser:
-                if role == 'admin':
-                    user.is_staff = True
-                    user.is_superuser = True
-                elif role == 'staff':
-                    user.is_staff = True
-                    user.is_superuser = False
-                else:
-                    user.is_staff = False
-                    user.is_superuser = False
-            elif request.user.is_staff:
-                if role == 'admin':
-                    return render(request, 'crud/new_user.html', {'error': 'Staff cannot assign admin role', 'users': User.objects.all(), 'profile_edit': True})
-                elif role == 'staff':
-                    user.is_staff = True
-                    user.is_superuser = False
-                elif role == 'user':
-                    user.is_staff = False
-                    user.is_superuser = False
-                else:
-                    return render(request, 'crud/new_user.html', {'error': 'Invalid role selected', 'users': User.objects.all(), 'profile_edit': True})
-            user.save()
+                user_obj.set_password(password)
+            role = request.POST.get('role')
+            if role == 'admin':
+                user_obj.is_superuser = True
+                user_obj.is_staff = True
+            elif role == 'staff':
+                user_obj.is_superuser = False
+                user_obj.is_staff = True
+            else:
+                user_obj.is_superuser = False
+                user_obj.is_staff = False
+            user_obj.save()
+            messages.success(request, 'User updated successfully')
             return redirect('edit_users')
         else:
-            users = User.objects.all()
-            return render(request, 'crud/new_user.html', {'error': 'Please provide username and password', 'users': users})
-    else:
-        user_id = request.GET.get('user_id') or request.GET.get('edit_user_id')
-        if user_id:
-            user = get_object_or_404(User, id=user_id)
-            return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
-        users = User.objects.all()
-        return render(request, 'crud/new_user.html', {'users': users})
+            # Create new user
+            username = request.POST.get('username')
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists')
+                return render(request, 'crud/new_user.html', {'users': User.objects.all()})
+            password = request.POST.get('password')
+            first_name = request.POST.get('first_name', '')
+            last_name = request.POST.get('last_name', '')
+            email = request.POST.get('email', '')
+            role = request.POST.get('role')
+            is_superuser = False
+            is_staff = False
+            if role == 'admin':
+                is_superuser = True
+                is_staff = True
+            elif role == 'staff':
+                is_superuser = False
+                is_staff = True
+            user_obj = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name, email=email, is_superuser=is_superuser, is_staff=is_staff)
+            messages.success(request, 'User created successfully')
+            return redirect('edit_users')
+
+    return render(request, 'crud/new_user.html', {'user': user_obj, 'profile_edit': profile_edit, 'users': User.objects.all()})
 
 @login_required
 def order_confirmation(request):
@@ -447,10 +474,16 @@ def admin_orders(request):
         purchases = Purchase.objects.select_related('user', 'item').exclude(status='Completed').order_by('-purchase_date')
         return render(request, 'crud/admin_orders.html', {'purchases': purchases})
 
+from django.contrib import messages
+
 @login_required
 def delete_user(request, user_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "You do not have permission to delete users.")
+        return redirect('main_menu')
     user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
         user.delete()
-        return redirect('login')
+        messages.success(request, "User deleted successfully.")
+        return redirect('new_users')
     return render(request, 'crud/delete_user_confirm.html', {'user': user})

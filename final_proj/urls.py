@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(template_name='crud/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    path('edit_users/', crud_views.new_user, name='edit_users'),
+    path('edit_users/', crud_views.edit_users, name='edit_users'),
     path('delete_user/<int:user_id>/', crud_views.delete_user, name='delete_user'),
     path('main-menu/', crud_views.main_menu, name='main_menu'),
     path('', auth_views.LoginView.as_view(template_name='crud/login.html'), name='login'),
