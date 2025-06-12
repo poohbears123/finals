@@ -11,24 +11,35 @@
     <div class="w-full max-w-7xl bg-slate-300 rounded-lg p-6 shadow-lg flex flex-col gap-6">
 
 
-    <nav class="mb-6 border-b border-gray-300">
-        <ul class="flex justify-center space-x-4 py-4">
-            <li><a href="{% url 'products_management' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Products</a></li>
-            <li><a href="{% url 'past_orders' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Past Orders</a></li>
-            <li><a href="{% url 'profile_edit' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Edit Profile</a></li>
-            {% if user.is_superuser %}
-                <li><a href="{% url 'edit_users' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Edit Users</a></li>
-                <li><a href="{% url 'purchase_statistics' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Purchase Statistics</a></li>
-                <li><a href="{% url 'admin_orders' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Admin Orders</a></li>
-            {% endif %}
-            <li><a href="{% url 'view_cart' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">View Cart</a></li>
-            <li><a href="{% url 'logout' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Logout</a></li>
-        </ul>
-    </nav>
+    <!-- Mobile menu button -->
+        <div class="md:hidden flex justify-end mb-4">
+            <button id="menu-toggle" aria-label="Toggle menu" class="text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+        </div>
 
+        <nav>
+            <ul id="menu-links" class="space-y-3 text-center md:text-left md:flex md:space-y-0 md:space-x-6 md:justify-center md:items-center hidden md:flex">
+                <li><a href="{% url 'products_management' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Products</a></li>
+                <li><a href="{% url 'past_orders' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Past Orders</a></li>
+                <li><a href="{% url 'profile_edit' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Edit Profile</a></li>
+                {% if user.is_superuser %}
+                    <li><a href="{% url 'edit_users' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Edit Users</a></li>
+                    <li><a href="{% url 'purchase_statistics' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Purchase Statistics</a></li>
+                    <li><a href="{% url 'admin_orders' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Admin Orders</a></li>
+                {% endif %}
+                <li><a href="{% url 'view_cart' %}" class="text-blue-600 hover:underline font-semibold block md:inline">View Cart</a></li>
+                <li><a href="{% url 'logout' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Logout</a></li>
+            </ul>
+        </nav>
         {% if request.user.is_staff %}
-        <p class="text-right mb-4"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add New Product</a></p>
+        <p class="text-right mb-4"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline">Add New Product</a></p>
         {% endif %}
+    </div>
 
         <div class="flex flex-col md:flex-row gap-6">
 
