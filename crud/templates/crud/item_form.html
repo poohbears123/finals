@@ -1,34 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% if item %}Edit{% else %}Create{% endif %} Item</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>{% if item %}Edit{% else %}Create{% endif %} Item</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="id_name">Name:</label>
-        <input type="text" name="name" id="id_name" value="{{ item.name|default_if_none:'' }}" required><br>
-        <label for="id_description">Description:</label><br>
-        <textarea name="description" id="id_description">{{ item.description|default_if_none:'' }}</textarea><br>
-        <label for="id_variety">Variety:</label>
-        <input type="text" name="variety" id="id_variety" value="{{ item.variety|default_if_none:'' }}"><br>
-        <label for="id_category">Category:</label>
-        <input type="text" name="category" id="id_category" value="{{ item.category.name|default_if_none:'' }}"><br>
-        <label for="id_size">Size:</label>
-        <select name="size" id="id_size" required>
-            {% for size_option in size_options %}
-                <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
-            {% endfor %}
-        </select><br>
-        <label for="id_stock">Stock:</label>
-        <input type="number" name="stock" id="id_stock" value="{{ item.stock|default_if_none:0 }}"><br>
-        <label for="id_photo">Photo:</label>
-        <input type="file" name="photo" id="id_photo" accept="image/*"><br>
-        <label for="id_price">Price (PHP):</label>
-        <input type="number" name="price" id="id_price" value="{{ item.price|default_if_none:0 }}" min="0" required><br>
-        <button type="submit">{% if item %}Update{% else %}Create{% endif %}</button>
-    </form>
-    <a href="{% url 'products_management' %}">Back to Products</a>
+<body class="bg-gray-100 py-10">
+    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">{% if item %}Edit{% else %}Create{% endif %} Item</h2>
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label for="id_name" class="block text-sm font-medium text-gray-700">Name:</label>
+                <input type="text" name="name" id="id_name" value="{{ item.name|default_if_none:'' }}" required
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            </div>
+            <div>
+                <label for="id_description" class="block text-sm font-medium text-gray-700">Description:</label>
+                <textarea name="description" id="id_description"
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ item.description|default_if_none:'' }}</textarea>
+            </div>
+            <div>
+                <label for="id_variety" class="block text-sm font-medium text-gray-700">Variety:</label>
+                <input type="text" name="variety" id="id_variety" value="{{ item.variety|default_if_none:'' }}"
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            </div>
+            <div>
+                <label for="id_category" class="block text-sm font-medium text-gray-700">Category:</label>
+                <input type="text" name="category" id="id_category" value="{{ item.category.name|default_if_none:'' }}"
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            </div>
+            <div>
+                <label for="id_size" class="block text-sm font-medium text-gray-700">Size:</label>
+                <select name="size" id="id_size" required
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    {% for size_option in size_options %}
+                        <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="id_stock" class="block text-sm font-medium text-gray-700">Stock:</label>
+                <input type="number" name="stock" id="id_stock" value="{{ item.stock|default_if_none:0 }}"
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            </div>
+            <div>
+                <label for="id_photo" class="block text-sm font-medium text-gray-700">Photo:</label>
+                <input type="file" name="photo" id="id_photo" accept="image/*"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            </div>
+            <div>
+                <label for="id_price" class="block text-sm font-medium text-gray-700">Price (PHP):</label>
+                <input type="number" name="price" id="id_price" value="{{ item.price|default_if_none:0 }}" min="0" required
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            </div>
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition-colors">{% if item %}Update{% else %}Create{% endif %}</button>
+        </form>
+        <a href="{% url 'products_management' %}" class="block mt-6 text-center text-blue-600 hover:underline">Back to Products</a>
+    </div>
 </body>
 </html>

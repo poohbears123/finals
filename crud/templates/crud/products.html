@@ -102,7 +102,7 @@
                     <p class="text-teal-700 font-bold">PHP {{ product.price }}</p>
                     <p><strong>Description:</strong> {{ product.description }}</p>
                     <p><strong>Variety:</strong> {{ product.variety }}</p>
-                    <p><strong>Quantity Remain:</strong> {{ product.quantity_remain }}</p>
+                    <p><strong>Stock:</strong> {{ product.stock }}</p>
                     <p>
                         <a href="{% url 'item_detail' product.id %}">View</a> |
                         {% if request.user.is_staff %}

@@ -34,7 +34,7 @@
                         <form method="post" action="{% url 'update_cart_quantity' %}" class="flex items-center space-x-2">
                             {% csrf_token %}
                             <input type="hidden" name="item_id" value="{{ entry.item.id }}" />
-                            <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.item.quantity_remain }}" required
+                            <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.item.stock }}" required
                                 class="w-20 border border-gray-300 rounded px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">Update</button>
                         </form>

@@ -78,8 +78,7 @@ def products_management(request):
 
     categories = Category.objects.all()
 
-    for product in products:
-        product.stock = product.stock 
+    # Removed redundant loop that sets product.stock = product.stock
 
     return render(request, 'crud/products.html', {
         'products': products,
@@ -106,13 +105,10 @@ def item_create(request):
             messages.error(request, "Product with this name already exists.")
             return render(request, 'crud/item_form.html', {'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         description = request.POST.get('description')
-        variety_id = request.POST.get('variety', '')
+        variety_name = request.POST.get('variety', '').strip()
         variety = None
-        if variety_id:
-            try:
-                variety = Variety.objects.get(pk=variety_id)
-            except Variety.DoesNotExist:
-                variety = None
+        if variety_name:
+            variety, created = Variety.objects.get_or_create(name=variety_name)
         category_name = request.POST.get('category', '').strip()
         category = None
         if category_name:
@@ -140,13 +136,10 @@ def item_update(request, pk):
             return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
         item.name = name
         item.description = request.POST.get('description')
-        variety_id = request.POST.get('variety', '')
-        if variety_id:
-            try:
-                variety = Variety.objects.get(pk=variety_id)
-                item.variety = variety
-            except Variety.DoesNotExist:
-                item.variety = None
+        variety_name = request.POST.get('variety', '').strip()
+        if variety_name:
+            variety, created = Variety.objects.get_or_create(name=variety_name)
+            item.variety = variety
         else:
             item.variety = None
         category_name = request.POST.get('category', '').strip()
@@ -209,12 +202,12 @@ def add_to_cart(request):
             messages.error(request, 'Quantity must be at least 1.')
             return redirect('products_management')
         item = get_object_or_404(Item, pk=item_id)
-        if quantity > item.stock:
+        if quantity > item.quantity_remain:
             messages.error(request, f'Cannot add more than available stock for {item.name}.')
             return redirect('products_management')
         cart = request.session.get('cart', {})
         current_quantity = cart.get(str(item_id), 0)
-        if current_quantity + quantity > item.stock:
+        if current_quantity + quantity > item.quantity_remain:
             messages.error(request, f'Cannot add more than available stock for {item.name}.')
             return redirect('products_management')
         cart[str(item_id)] = current_quantity + quantity

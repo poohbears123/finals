@@ -35,9 +35,7 @@ class Item(models.Model):
 
     @property
     def quantity_remain(self):
-        from .models import Purchase
-        sold_quantity = Purchase.objects.filter(item=self, status='Completed').aggregate(total=models.Sum('quantity'))['total'] or 0
-        return self.stock - sold_quantity
+        return self.stock
 
 class Purchase(models.Model):
     STATUS_CHOICES = [
