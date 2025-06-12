@@ -325,13 +325,37 @@ def payment_demo(request):
 
 from django.contrib.admin.views.decorators import staff_member_required
 
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 @staff_member_required
 def purchase_statistics(request):
-    purchases = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
-    total_per_item = Purchase.objects.values('item__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')
+    search_query = request.GET.get('search', '').strip()
+
+    purchases_qs = Purchase.objects.select_related('user', 'item').order_by('-purchase_date')
+    if search_query:
+        purchases_qs = purchases_qs.filter(
+            Q(user__username__icontains=search_query) |
+            Q(item__name__icontains=search_query) |
+            Q(status__icontains=search_query)
+        )
+
+    total_per_item_qs = Purchase.objects.values('item__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')
+
+    # Pagination
+    purchases_paginator = Paginator(purchases_qs, 15)
+    total_per_item_paginator = Paginator(total_per_item_qs, 10)
+
+    purchases_page_number = request.GET.get('purchases_page')
+    total_per_item_page_number = request.GET.get('items_page')
+
+    purchases = purchases_paginator.get_page(purchases_page_number)
+    total_per_item = total_per_item_paginator.get_page(total_per_item_page_number)
+
     context = {
         'purchases': purchases,
         'total_per_item': total_per_item,
+        'search_query': search_query,
         'now': now(),
     }
     return render(request, 'crud/purchase_statistics.html', context)
@@ -436,10 +460,24 @@ def profile_edit(request):
         return redirect('profile_edit')
     return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
 
+from django.core.paginator import Paginator
+
 @login_required
 def past_orders(request):
-    purchases = Purchase.objects.filter(user=request.user).select_related('item').order_by('-purchase_date')
-    return render(request, 'crud/past_orders.html', {'purchases': purchases})
+    search_query = request.GET.get('search', '').strip()
+    purchases_list = Purchase.objects.filter(user=request.user).select_related('item').order_by('-purchase_date')
+    if search_query:
+        purchases_list = purchases_list.filter(
+            item__name__icontains=search_query
+        )
+    paginator = Paginator(purchases_list, 10)  # Show 10 orders per page
+    page_number = request.GET.get('page')
+    purchases = paginator.get_page(page_number)
+    context = {
+        'purchases': purchases,
+        'search_query': search_query,
+    }
+    return render(request, 'crud/past_orders.html', context)
 
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages

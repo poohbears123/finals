@@ -10,21 +10,30 @@
 
     <div class="w-full max-w-7xl bg-slate-300 rounded-lg p-6 shadow-lg flex flex-col gap-6">
 
-        <h2 class="text-center text-2xl font-semibold mb-4">Featured Products</h2>
 
-        <div class="flex justify-between items-center mb-4">
-            <a href="{% url 'main_menu' %}" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition">Return to Menu</a>
-            <a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">View Cart</a>
-        </div>
+    <nav class="mb-6 border-b border-gray-300">
+        <ul class="flex justify-center space-x-4 py-4">
+            <li><a href="{% url 'products_management' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Products</a></li>
+            <li><a href="{% url 'past_orders' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Past Orders</a></li>
+            <li><a href="{% url 'profile_edit' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Edit Profile</a></li>
+            {% if user.is_superuser %}
+                <li><a href="{% url 'edit_users' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Edit Users</a></li>
+                <li><a href="{% url 'purchase_statistics' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Purchase Statistics</a></li>
+                <li><a href="{% url 'admin_orders' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Admin Orders</a></li>
+            {% endif %}
+            <li><a href="{% url 'view_cart' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">View Cart</a></li>
+            <li><a href="{% url 'logout' %}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition font-semibold">Logout</a></li>
+        </ul>
+    </nav>
 
         {% if request.user.is_staff %}
         <p class="text-right mb-4"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add New Product</a></p>
         {% endif %}
 
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-6">
 
             <!-- Sidebar Filters -->
-            <aside class="w-48 bg-slate-100 rounded-lg p-4 flex flex-col gap-4">
+            <aside class="w-full md:w-48 bg-slate-100 rounded-lg p-4 flex flex-col gap-4">
                 <form method="get" action="{% url 'products_management' %}" class="flex flex-col gap-4">
 
                     <div>

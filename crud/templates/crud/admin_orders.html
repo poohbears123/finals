@@ -8,10 +8,10 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-6">
 
-    <div class="max-w-7xl mx-auto bg-white rounded-lg shadow p-6">
+    <div class="max-w-7xl mx-auto bg-white rounded-lg shadow p-4 sm:p-6">
 
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-semibold">All Orders</h2>
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+            <h2 class="text-xl sm:text-2xl font-semibold">All Orders</h2>
             <div class="flex gap-4">
                 <a href="{% url 'main_menu' %}" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition">Return to Menu</a>
                 <a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">View Cart</a>
@@ -21,40 +21,42 @@
         {% if purchases %}
         <form method="post" action="{% url 'admin_orders' %}">
             {% csrf_token %}
-            <table class="w-full border-collapse border border-gray-300">
-                <thead>
-                <tr class="bg-green-200">
-                    <th class="border border-gray-300 px-4 py-2 text-left">Order No.</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">User</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Order Date</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Price</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Status</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Update Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for purchase in purchases %}
-                <tr class="hover:bg-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead>
+                    <tr class="bg-green-200">
+                        <th class="border border-gray-300 px-4 py-2 text-left">Order No.</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">User</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Order Date</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Price</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Status</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr class="hover:bg-gray-100">
 <td class="border border-gray-300 px-4 py-2">ORD-{{ purchase.id|stringformat:"06d" }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ purchase.user.username }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ purchase.purchase_date }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ purchase.item.name }}</td>
-                    <td class="border border-gray-300 px-4 py-2">PHP {{ purchase.item.price }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ purchase.quantity }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ purchase.status }}</td>
-                    <td class="border border-gray-300 px-4 py-2">
-                        <select name="status_{{ purchase.id }}" class="rounded border border-gray-300 p-1">
-                            <option value="Pending" {% if purchase.status == "Pending" %}selected{% endif %}>Pending</option>
-                            <option value="Ready for Pick Up" {% if purchase.status == "Ready for Pick Up" %}selected{% endif %}>Ready for Pick Up</option>
-                            <option value="Completed" {% if purchase.status == "Completed" %}selected{% endif %}>Completed</option>
-                        </select>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                        <td class="border border-gray-300 px-4 py-2">{{ purchase.user.username }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ purchase.purchase_date }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ purchase.item.name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">PHP {{ purchase.item.price }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ purchase.quantity }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ purchase.status }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <select name="status_{{ purchase.id }}" class="rounded border border-gray-300 p-1">
+                                <option value="Pending" {% if purchase.status == "Pending" %}selected{% endif %}>Pending</option>
+                                <option value="Ready for Pick Up" {% if purchase.status == "Ready for Pick Up" %}selected{% endif %}>Ready for Pick Up</option>
+                                <option value="Completed" {% if purchase.status == "Completed" %}selected{% endif %}>Completed</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <button type="submit" class="mt-4 bg-green-400 text-black py-2 px-4 rounded hover:bg-green-500 transition font-semibold">Update All</button>
         </form>
         {% else %}

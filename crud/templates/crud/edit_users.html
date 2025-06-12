@@ -3,35 +3,37 @@
 {% block content %}
 <h1>Edit Users</h1>
 
-<table>
-    <thead>
+<div class="overflow-x-auto">
+<table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
+    <thead class="bg-gray-100">
         <tr>
-            <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Actions</th>
+            <th class="py-3 px-6 text-left font-semibold text-gray-700">Username</th>
+            <th class="py-3 px-6 text-left font-semibold text-gray-700">First Name</th>
+            <th class="py-3 px-6 text-left font-semibold text-gray-700">Last Name</th>
+            <th class="py-3 px-6 text-left font-semibold text-gray-700">Email</th>
+            <th class="py-3 px-6 text-left font-semibold text-gray-700">Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for user in users %}
-        <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.email }}</td>
-            <td>
-                <a href="{% url 'profile_edit' %}?user_id={{ user.id }}">Edit</a> |
-                <a href="{% url 'delete_user' user.id %}">Delete</a>
+        <tr class="border-t border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6">{{ user.username }}</td>
+            <td class="py-3 px-6">{{ user.first_name }}</td>
+            <td class="py-3 px-6">{{ user.last_name }}</td>
+            <td class="py-3 px-6">{{ user.email }}</td>
+            <td class="py-3 px-6">
+                <a href="{% url 'profile_edit' %}?user_id={{ user.id }}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition font-semibold">Edit</a>
+                <a href="{% url 'delete_user' user.id %}" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition font-semibold ml-2">Delete</a>
             </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="5">No users found.</td>
+            <td colspan="5" class="py-3 px-6 text-center text-gray-500">No users found.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 
 <a href="{% url 'new_user' %}">Add New User</a>
 
