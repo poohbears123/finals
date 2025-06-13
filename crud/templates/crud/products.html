@@ -6,14 +6,14 @@
     <title>Products Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-200 min-h-screen flex flex-col items-center p-4">
+<body class="bg-slate-200 min-h-screen flex flex-col items-center p-4 pt-28">
 
     <div class="w-full max-w-7xl bg-slate-300 rounded-lg p-6 shadow-lg flex flex-col gap-6">
 
 
-    <!-- Mobile menu button -->
+        <!-- Mobile menu button -->
         <div class="md:hidden flex justify-end mb-4">
-            <button id="menu-toggle" aria-label="Toggle menu" class="text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded">
+            <button id="menu-toggle" aria-label="Toggle menu" class="bg-teal-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-600 rounded py-2 px-4 hover:bg-teal-700 transition">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12" />
                     <line x1="3" y1="6" x2="21" y2="6" />
@@ -24,27 +24,29 @@
 
         <nav>
             <ul id="menu-links" class="space-y-3 text-center md:text-left md:flex md:space-y-0 md:space-x-6 md:justify-center md:items-center hidden md:flex">
-                <li><a href="{% url 'products_management' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Products</a></li>
-                <li><a href="{% url 'past_orders' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Past Orders</a></li>
-                <li><a href="{% url 'profile_edit' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Edit Profile</a></li>
                 {% if user.is_superuser %}
-                    <li><a href="{% url 'edit_users' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Edit Users</a></li>
-                    <li><a href="{% url 'purchase_statistics' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Purchase Statistics</a></li>
-                    <li><a href="{% url 'admin_orders' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Admin Orders</a></li>
+                <li><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Products</a></li>
                 {% endif %}
-                <li><a href="{% url 'view_cart' %}" class="text-blue-600 hover:underline font-semibold block md:inline">View Cart</a></li>
-                <li><a href="{% url 'logout' %}" class="text-blue-600 hover:underline font-semibold block md:inline">Logout</a></li>
+                <li><a href="{% url 'past_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Past Orders</a></li>
+                <li><a href="{% url 'profile_edit' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Edit Profile</a></li>
+                {% if user.is_superuser %} 
+                    <li><a href="{% url 'edit_users' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Edit Users</a></li>
+                    <li><a href="{% url 'purchase_statistics' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Purchase Statistics</a></li>
+                    <li><a href="{% url 'admin_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Admin Orders</a></li>
+                {% endif %}
+                <li><a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">View Cart</a></li>
+                <li><a href="{% url 'logout' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Logout</a></li>
+              <!-- {% if request.user.is_staff %}
+                <li class="md:hidden"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block">Add New Product</a></li>
+                {% endif %}-->
             </ul>
         </nav>
-        {% if request.user.is_staff %}
-        <p class="text-right mb-4"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline">Add New Product</a></p>
-        {% endif %}
     </div>
 
         <div class="flex flex-col md:flex-row gap-6">
 
             <!-- Sidebar Filters -->
-            <aside class="w-full md:w-48 bg-slate-100 rounded-lg p-4 flex flex-col gap-4">
+            <aside class="flex flex-col md:flex-col md:w-48 bg-slate-100 rounded-lg p-4 gap-4 mb-6 md:mb-0">
                 <form method="get" action="{% url 'products_management' %}" class="flex flex-col gap-4">
 
                     <div>
@@ -165,6 +167,13 @@
                     setTimeout(() => { popup.style.display = 'none'; }, 3000);
                 {% endfor %}
             {% endif %}
+
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuLinks = document.getElementById('menu-links');
+            menuToggle.addEventListener('click', () => {
+                menuLinks.classList.toggle('hidden');
+            });
         };
 
         function toggleQuantityPopup(itemId, itemName, maxQuantity) {
