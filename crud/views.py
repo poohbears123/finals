@@ -202,6 +202,7 @@ from django.contrib.auth.decorators import login_required
 def add_to_cart(request):
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
+        size = request.POST.get('size', 'S')
         if not item_id:
             messages.error(request, 'No item specified.')
             return redirect('products_management')
@@ -218,13 +219,16 @@ def add_to_cart(request):
             messages.error(request, f'Cannot add more than available stock for {item.name}.')
             return redirect('products_management')
         cart = request.session.get('cart', {})
-        current_quantity = cart.get(str(item_id), 0)
+
+        # Use combined key of item_id and size
+        key = f"{item_id}_{size}"
+        current_quantity = cart.get(key, 0)
         if current_quantity + quantity > item.quantity_remain:
-            messages.error(request, f'Cannot add more than available stock for {item.name}.')
+            messages.error(request, f'Cannot add more than available stock for {item.name} size {size}.')
             return redirect('products_management')
-        cart[str(item_id)] = current_quantity + quantity
+        cart[key] = current_quantity + quantity
         request.session['cart'] = cart
-        messages.success(request, f'Added {quantity} of {item.name} to cart.')
+        messages.success(request, f'Added {quantity} of {item.name} size {size} to cart.')
         return redirect('products_management')
     else:
         messages.error(request, 'Invalid request method.')
@@ -236,10 +240,17 @@ def view_cart(request):
     items = []
     total_quantity = 0
     total_price = 0
-    for pk, quantity in cart.items():
-        item = get_object_or_404(Item, pk=pk)
+    for key, quantity in cart.items():
+        # key format: item_id_size
+        parts = key.split('_')
+        if len(parts) == 2:
+            item_id, size = parts
+        else:
+            item_id = parts[0]
+            size = 'S'  # default size if not specified
+        item = get_object_or_404(Item, pk=item_id)
         item_total_price = item.price * quantity
-        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price})
+        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price, 'size': size})
         total_quantity += quantity
         total_price += item_total_price
 
@@ -261,6 +272,7 @@ def view_cart(request):
 def update_cart_quantity(request):
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
+        new_size = request.POST.get('size', 'S')
         try:
             quantity = int(request.POST.get('quantity', 1))
         except (ValueError, TypeError):
@@ -271,9 +283,23 @@ def update_cart_quantity(request):
         if quantity > item.quantity_remain:
             quantity = item.quantity_remain
         cart = request.session.get('cart', {})
-        cart[str(item_id)] = quantity
+
+        # Find old key for this item (any size)
+        old_key = None
+        for key in cart.keys():
+            if key.startswith(f"{item_id}_"):
+                old_key = key
+                break
+
+        if old_key and old_key != f"{item_id}_{new_size}":
+            # Remove old key and add new key with updated size
+            del cart[old_key]
+            cart[f"{item_id}_{new_size}"] = quantity
+        else:
+            cart[f"{item_id}_{new_size}"] = quantity
+
         request.session['cart'] = cart
-        messages.success(request, f'Updated quantity for {item.name} to {quantity}.')
+        messages.success(request, f'Updated quantity for {item.name} size {new_size} to {quantity}.')
         return redirect('view_cart')
     else:
         return redirect('view_cart')
@@ -303,10 +329,17 @@ def order_summary(request):
     items = []
     total_quantity = 0
     total_price = 0
-    for pk, quantity in cart.items():
-        item = get_object_or_404(Item, pk=pk)
+    for key, quantity in cart.items():
+        # key format: item_id_size
+        parts = key.split('_')
+        if len(parts) == 2:
+            item_id, size = parts
+        else:
+            item_id = parts[0]
+            size = 'S'  # default size if not specified
+        item = get_object_or_404(Item, pk=item_id)
         item_total_price = item.price * quantity
-        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price})
+        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price, 'size': size})
         total_quantity += quantity
         total_price += item_total_price
 
@@ -327,7 +360,14 @@ def payment_demo(request):
         order_details = []
         total_quantity = 0
         total_price = 0
-        for pk_str, quantity in cart.items():
+        for key, quantity in cart.items():
+            # key format: item_id_size
+            parts = key.split('_')
+            if len(parts) == 2:
+                pk_str, size = parts
+            else:
+                pk_str = parts[0]
+                size = 'S'  # default size if not specified
             pk = int(pk_str)
             item = get_object_or_404(Item, pk=pk)
             if item.quantity_remain >= quantity:
@@ -337,9 +377,11 @@ def payment_demo(request):
                 logger.info(f"Purchase added: User {request.user.username}, Item {item.name} (ID: {item.id}), Quantity {quantity}")
                 order_details.append({
                     'item_name': item.name,
+                    'size': size,
                     'quantity': quantity,
                     'price': item.price,
                     'total_price': item.price * quantity,
+                    'status': purchase.status,
                 })
                 total_quantity += quantity
                 total_price += item.price * quantity

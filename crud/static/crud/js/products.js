@@ -11,6 +11,13 @@ function toggleQuantityPopup(id, name, maxQty) {
     document.getElementById('popup-item-quantity').textContent = maxQty;
     document.getElementById('quantity-input').max = maxQty;
     document.getElementById('quantity-input').value = 1;
+
+    // Reset size select to default M
+    const sizeSelect = document.getElementById('size-select');
+    if (sizeSelect) {
+        sizeSelect.value = 'S';
+    }
+
     document.getElementById('quantity-popup').classList.remove('hidden');
 }
 

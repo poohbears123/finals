@@ -15,7 +15,6 @@
     </div>
 
     <script>
-        // Redirect back button to products_management page
         history.pushState(null, null, location.href);
         window.onpopstate = function () {
             window.location.href = "{% url 'products_management' %}";
@@ -28,7 +27,7 @@
                 <tr>
                     <th class="py-3 px-6 text-left font-semibold text-gray-700">Product</th>
                     <th class="py-3 px-6 text-left font-semibold text-gray-700">Price (PHP)</th>
-                    <th class="py-3 px-6 text-left font-semibold text-gray-700">Quantity</th>
+                    <th class="py-3 px-6 text-left font-semibold text-gray-700">Size & Quantity</th>
                     <th class="py-3 px-6 text-left font-semibold text-gray-700">Total Price (PHP)</th>
                     <th class="py-3 px-6 text-left font-semibold text-gray-700">Actions</th>
                 </tr>
@@ -36,21 +35,28 @@
             <tbody>
                 {% for entry in items %}
                 <tr class="border-t border-gray-200 hover:bg-gray-50">
-                    <td class="py-3 px-6">{{ entry.item.name }}</td>
-                    <td class="py-3 px-6">₱{{ entry.item.price }}</td>
-                    <td class="py-3 px-6">
-                        <form method="post" action="{% url 'update_cart_quantity' %}" class="flex items-center space-x-2">
-                            {% csrf_token %}
-                            <input type="hidden" name="item_id" value="{{ entry.item.id }}" />
-                            <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.item.stock }}" required
-                                class="w-20 border border-gray-300 rounded px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">Update</button>
-                        </form>
-                    </td>
-                    <td class="py-3 px-6">₱{{ entry.item_total_price }}</td>
-                    <td class="py-3 px-6">
-                        <a href="{% url 'remove_from_cart' entry.item.id %}" class="text-red-600 hover:text-red-800 font-semibold">Remove</a>
-                    </td>
+                <td class="py-3 px-6">{{ entry.item.name }}</td>
+                <td class="py-3 px-6">₱{{ entry.item.price }}</td>
+                <td class="py-3 px-6">
+                    <form method="post" action="{% url 'update_cart_quantity' %}" class="flex items-center space-x-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{ entry.item.id }}" />
+                        <select name="size" class="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="S" {% if entry.size == "S" %}selected{% endif %}>S</option>
+                            <option value="M" {% if entry.size == "M" %}selected{% endif %}>M</option>
+                            <option value="L" {% if entry.size == "L" %}selected{% endif %}>L</option>
+                            <option value="XL" {% if entry.size == "XL" %}selected{% endif %}>XL</option>
+                            <option value="XXL" {% if entry.size == "XXL" %}selected{% endif %}>XXL</option>
+                        </select>
+                        <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.item.stock }}" required
+                            class="w-20 border border-gray-300 rounded px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">Update</button>
+                    </form>
+                </td>
+                <td class="py-3 px-6">₱{{ entry.item_total_price }}</td>
+                <td class="py-3 px-6">
+                    <a href="{% url 'remove_from_cart' entry.item.id %}" class="text-red-600 hover:text-red-800 font-semibold">Remove</a>
+                </td>
                 </tr>
                 {% endfor %}
             </tbody>

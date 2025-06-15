@@ -22,11 +22,11 @@ def notify_status_change(sender, instance, created, **kwargs):
     if not created:
         old_status = getattr(instance, '_old_status', None)
         if old_status != instance.status:
-            # Flatten payload to avoid nested structures for Zapier
             payload = {
                 'user': str(instance.user.username),
                 'email': str(instance.user.email),
                 'item_name': str(instance.item.name),
+                'size': str(instance.item.size),
                 'quantity': str(instance.quantity),
                 'status': str(instance.status),
                 'message': f'Your product status is {instance.status}.',

@@ -162,6 +162,14 @@
         <form id="add-to-cart-form" method="post" action="{% url 'add_to_cart' %}">
             {% csrf_token %}
             <input type="hidden" name="item_id" id="popup-item-id" />
+            <label class="block mt-2">Size:</label>
+            <select id="size-select" name="size" class="w-full border border-gray-300 rounded p-2" required>
+                <option value="S">S</option>
+                <option value="M" selected>M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+            </select>
             <label class="block mt-2">Quantity:</label>
             <input type="number" id="quantity-input" name="quantity" min="1" value="1" class="w-full border border-gray-300 rounded p-2" required />
             <div class="mt-4 flex gap-2">
