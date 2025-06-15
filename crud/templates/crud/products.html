@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+{% load static %}
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,12 +126,32 @@
             <p class="text-center col-span-full">No products found.</p>
             {% endfor %}
         </section>
-    </div>
 
-    <!-- Popup Message -->
+        <!-- Pagination Controls -->
+        <div class="col-span-full flex justify-center mt-6 space-x-2 fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 rounded shadow px-4 py-2 z-50">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-teal-600 bg-opacity-90 text-white rounded hover:bg-teal-700 hover:bg-opacity-100">Previous</a>
+            {% else %}
+                <span class="px-3 py-1 bg-gray-300 bg-opacity-70 text-gray-600 rounded cursor-not-allowed">Previous</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="px-3 py-1 bg-teal-800 text-white rounded font-bold">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-teal-600 text-white rounded hover:bg-teal-700">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-teal-600 text-white rounded hover:bg-teal-700">Next</a>
+            {% else %}
+                <span class="px-3 py-1 bg-gray-300 text-gray-600 rounded cursor-not-allowed">Next</span>
+            {% endif %}
+        </div>
+    </div>
     <div id="popup-message" class="fixed top-5 right-5 hidden bg-green-500 text-white px-4 py-2 rounded shadow z-50"></div>
 
-    <!-- Quantity Popup -->
     <div id="quantity-popup" class="fixed hidden top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 p-6 rounded-lg shadow-lg z-50">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold">Add to Cart</h3>
@@ -150,37 +171,35 @@
         </form>
         <p id="popup-error" class="text-red-600 mt-2 hidden"></p>
     </div>
+<script>
+    window.onload = function () {
+        const popup = document.getElementById('popup-message');
+        {% if messages %}
+            {% for message in messages %}
+                popup.textContent = "{{ message }}";
+                popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
+                popup.classList.remove('hidden');
+                setTimeout(() => popup.classList.add('hidden'), 3000);
+            {% endfor %}
+        {% endif %}
 
-    <!-- JavaScript -->
-    <script>
-        window.onload = function () {
-            const popup = document.getElementById('popup-message');
-            {% if messages %}
-                {% for message in messages %}
-                    popup.textContent = "{{ message }}";
-                    popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
-                    popup.classList.remove('hidden');
-                    setTimeout(() => popup.classList.add('hidden'), 3000);
-                {% endfor %}
-            {% endif %}
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            document.getElementById('menu-links').classList.toggle('hidden');
+        });
+    };
 
-            document.getElementById('menu-toggle').addEventListener('click', () => {
-                document.getElementById('menu-links').classList.toggle('hidden');
-            });
-        };
+    function toggleQuantityPopup(id, name, maxQty) {
+        document.getElementById('popup-item-id').value = id;
+        document.getElementById('popup-item-name').textContent = name;
+        document.getElementById('popup-item-quantity').textContent = maxQty;
+        document.getElementById('quantity-input').max = maxQty;
+        document.getElementById('quantity-input').value = 1;
+        document.getElementById('quantity-popup').classList.remove('hidden');
+    }
 
-        function toggleQuantityPopup(id, name, maxQty) {
-            document.getElementById('popup-item-id').value = id;
-            document.getElementById('popup-item-name').textContent = name;
-            document.getElementById('popup-item-quantity').textContent = maxQty;
-            document.getElementById('quantity-input').max = maxQty;
-            document.getElementById('quantity-input').value = 1;
-            document.getElementById('quantity-popup').classList.remove('hidden');
-        }
-
-        function closeQuantityPopup() {
-            document.getElementById('quantity-popup').classList.add('hidden');
-        }
-    </script>
+    function closeQuantityPopup() {
+        document.getElementById('quantity-popup').classList.add('hidden');
+    }
+</script>
 </body>
 </html>

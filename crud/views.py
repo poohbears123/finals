@@ -68,6 +68,8 @@ def item_list(request):
     items = Item.objects.all()
     return render(request, 'crud/item_list.html', {'items': items})
 
+from django.core.paginator import Paginator
+
 @login_required
 def products_management(request):
     category_id = request.GET.get('category', '')
@@ -83,13 +85,16 @@ def products_management(request):
 
     categories = Category.objects.all()
 
-    # Removed redundant loop that sets product.stock = product.stock
+    paginator = Paginator(products, 6)  # Show 6 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, 'crud/products.html', {
-        'products': products,
+        'products': page_obj,
         'categories': categories,
         'selected_category': category_id,
         'search_query': search_query,
+        'page_obj': page_obj,
     })
 
 @login_required
