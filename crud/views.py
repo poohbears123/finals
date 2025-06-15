@@ -305,11 +305,15 @@ def order_summary(request):
         total_quantity += quantity
         total_price += item_total_price
 
-    return render(request, 'crud/order_summary.html', {
+    response = render(request, 'crud/order_summary.html', {
         'items': items,
         'total_quantity': total_quantity,
         'total_price': total_price,
     })
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 @login_required
 def payment_demo(request):

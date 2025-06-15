@@ -10,10 +10,9 @@
 
     <div class="w-full max-w-7xl bg-slate-300 rounded-lg p-6 shadow-lg flex flex-col gap-6">
 
-
         <!-- Mobile menu button -->
         <div class="md:hidden flex justify-end mb-4">
-            <button id="menu-toggle" aria-label="Toggle menu" class="bg-teal-600 text-white focus:outline-none focus:ring-2 focus:ring-teal-600 rounded py-2 px-4 hover:bg-teal-700 transition">
+            <button id="menu-toggle" aria-label="Toggle menu" class="bg-teal-600 text-white rounded py-2 px-4 hover:bg-teal-700 transition">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12" />
                     <line x1="3" y1="6" x2="21" y2="6" />
@@ -22,180 +21,166 @@
             </button>
         </div>
 
+        <!-- Navigation -->
         <nav>
             <ul id="menu-links" class="space-y-3 text-center md:text-left md:flex md:space-y-0 md:space-x-6 md:justify-center md:items-center hidden md:flex">
                 {% if user.is_superuser %}
-                <li><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Products</a></li>
+                <li><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Products</a></li>
                 {% endif %}
-                <li><a href="{% url 'past_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Past Orders</a></li>
-                <li><a href="{% url 'profile_edit' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Edit Profile</a></li>
-                {% if user.is_superuser %} 
-                    <li><a href="{% url 'edit_users' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Edit Users</a></li>
-                    <li><a href="{% url 'purchase_statistics' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Purchase Statistics</a></li>
-                    <li><a href="{% url 'admin_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Admin Orders</a></li>
+                <li><a href="{% url 'past_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Past Orders</a></li>
+                <li><a href="{% url 'profile_edit' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Edit Profile</a></li>
+                {% if user.is_superuser %}
+                    <li><a href="{% url 'edit_users' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Edit Users</a></li>
+                    <li><a href="{% url 'purchase_statistics' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Purchase Statistics</a></li>
+                    <li><a href="{% url 'admin_orders' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Admin Orders</a></li>
                 {% endif %}
-                <li><a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">View Cart</a></li>
-                <li><a href="{% url 'logout' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block md:inline font-semibold">Logout</a></li>
-              <!-- {% if request.user.is_staff %}
-                <li class="md:hidden"><a href="{% url 'item_create' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition block">Add New Product</a></li>
-                {% endif %}-->
+                <li><a href="{% url 'view_cart' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">View Cart</a></li>
+                <li><a href="{% url 'logout' %}" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition font-semibold block md:inline">Logout</a></li>
             </ul>
         </nav>
     </div>
 
-        <div class="flex flex-col md:flex-row gap-6">
+    <!-- Main Content -->
+    <div class="flex flex-col md:flex-row gap-6 w-full max-w-7xl mt-6">
 
-            <!-- Sidebar Filters -->
-            <aside class="flex flex-col md:flex-col md:w-48 bg-slate-100 rounded-lg p-4 gap-4 mb-6 md:mb-0">
-                <form method="get" action="{% url 'products_management' %}" class="flex flex-col gap-4">
+        <!-- Sidebar Filters -->
+        <aside class="w-full md:w-60 bg-white rounded-lg shadow p-4">
+            <form method="get" action="{% url 'products_management' %}" class="space-y-4">
+                <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" class="w-full border border-gray-300 rounded p-2" />
 
-                    <div>
-                        <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" class="w-full rounded border border-gray-300 p-2 mb-2" />
-                    </div>
-
-                    <div>
-                        <label for="category" class="block mb-1 font-medium">Categories</label>
-                        <select name="category" id="category" class="w-full rounded border border-gray-300 p-2">
-                            <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All Categories</option>
-                            {% for category in categories %}
+                <div>
+                    <label class="block mb-1 font-medium">Categories</label>
+                    <select name="category" class="w-full border border-gray-300 rounded p-2">
+                        <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All</option>
+                        {% for category in categories %}
                             <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="variety" class="block mb-1 font-medium">Type</label>
-                        <select name="variety" id="variety" class="w-full rounded border border-gray-300 p-2">
-                            <option value="all" selected>All Types</option>
-                            {% for variety in varieties %}
-                            <option value="{{ variety.id }}" {% if selected_variety == variety.id|stringformat:"s" %}selected{% endif %}>{{ variety.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="size" class="block mb-1 font-medium">Size</label>
-                        <select name="size" id="size" class="w-full rounded border border-gray-300 p-2">
-                            <option value="all" selected>All Sizes</option>
-                            {% for size_option in size_options %}
-                            <option value="{{ size_option }}" {% if selected_size == size_option %}selected{% endif %}>{{ size_option }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <button type="submit" class="mt-4 bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition">Filter</button>
-                </form>
-            </aside>
-
-            <!-- Products Grid -->
-            <section class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {% for product in products %}
-                <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                    {% if product.photo %}
-                        <img src="{{ product.photo.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded mb-4" />
-                    {% else %}
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded mb-4">
-                            <span class="text-gray-500 font-semibold">No Image</span>
-                        </div>
-                    {% endif %}
-                    <div class="flex gap-4 w-full justify-between mb-2">
-                        <button title="Add to Favorites" class="text-teal-600 hover:text-teal-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
-                            </svg>
-                        </button>
-                        <button title="Add to Cart" onclick="toggleQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})" class="text-teal-600 hover:text-teal-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m4-9l2 9" />
-                            </svg>
-                        </button>
-                    </div>
-                    <h3 class="text-lg font-semibold text-center">{{ product.name }}</h3>
-                    <p class="text-sm text-gray-600">Size: {{ product.size }}</p>
-                    <p class="text-teal-700 font-bold">PHP {{ product.price }}</p>
-                    <p><strong>Description:</strong> {{ product.description }}</p>
-                    <p><strong>Variety:</strong> {{ product.variety }}</p>
-                    <p><strong>Stock:</strong> {{ product.stock }}</p>
-                    <p>
-                        <a href="{% url 'item_detail' product.id %}">View</a> |
-                        {% if request.user.is_staff %}
-                        <a href="{% url 'item_update' product.id %}">Edit</a> |
-                        <a href="{% url 'item_delete' product.id %}">Delete</a> |
-                        {% endif %}
-                        <a href="javascript:void(0);" onclick="toggleQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})">Add to Cart</a>
-                    </p>
+                        {% endfor %}
+                    </select>
                 </div>
-                {% empty %}
-                <p>No products found.</p>
-                {% endfor %}
-            </section>
 
-        </div>
+                <div>
+                    <label class="block mb-1 font-medium">Type</label>
+                    <select name="variety" class="w-full border border-gray-300 rounded p-2">
+                        <option value="all" selected>All</option>
+                        {% for variety in varieties %}
+                            <option value="{{ variety.id }}" {% if selected_variety == variety.id|stringformat:"s" %}selected{% endif %}>{{ variety.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
+                <div>
+                    <label class="block mb-1 font-medium">Size</label>
+                    <select name="size" class="w-full border border-gray-300 rounded p-2">
+                        <option value="all" selected>All</option>
+                        {% for size_option in size_options %}
+                            <option value="{{ size_option }}" {% if selected_size == size_option %}selected{% endif %}>{{ size_option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition w-full">Filter</button>
+            </form>
+        </aside>
+
+        <!-- Products Grid -->
+        <section class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center">
+                {% if product.photo %}
+                    <img src="{{ product.photo.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded mb-4" />
+                {% else %}
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded mb-4">
+                        <span class="text-gray-500 font-semibold">No Image</span>
+                    </div>
+                {% endif %}
+
+                <div class="flex gap-4 w-full justify-between mb-2">
+                    <button title="Add to Favorites" class="text-teal-600 hover:text-teal-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                        </svg>
+                    </button>
+                    <button title="Add to Cart" onclick="toggleQuantityPopup({{ product.id }}, '{{ product.name }}', {{ product.quantity_remain }})" class="text-teal-600 hover:text-teal-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m4-9l2 9" />
+                        </svg>
+                    </button>
+                </div>
+
+                <h3 class="text-lg font-semibold text-center">{{ product.name }}</h3>
+                <p class="text-sm text-gray-600">Size: {{ product.size }}</p>
+                <p class="text-teal-700 font-bold">PHP {{ product.price }}</p>
+                <p><strong>Description:</strong> {{ product.description }}</p>
+                <p><strong>Variety:</strong> {{ product.variety }}</p>
+                <p><strong>Stock:</strong> {{ product.stock }}</p>
+                <p>
+                    <a href="{% url 'item_detail' product.id %}" class="text-blue-600">View</a>
+                    {% if request.user.is_staff %}|
+                    <a href="{% url 'item_update' product.id %}" class="text-green-600">Edit</a> |
+                    <a href="{% url 'item_delete' product.id %}" class="text-red-600">Delete</a>
+                    {% endif %}
+                </p>
+            </div>
+            {% empty %}
+            <p class="text-center col-span-full">No products found.</p>
+            {% endfor %}
+        </section>
     </div>
 
-    <div id="popup-message" style="display:none; position: fixed; top: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
+    <!-- Popup Message -->
+    <div id="popup-message" class="fixed top-5 right-5 hidden bg-green-500 text-white px-4 py-2 rounded shadow z-50"></div>
 
-    <div id="quantity-popup" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background-color: white; border: 1px solid #ccc; padding: 20px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold">Add to Cart</h3>
-            <button id="popup-close-btn" aria-label="Close" class="text-gray-600 hover:text-gray-900 font-bold text-xl leading-none" onclick="closeQuantityPopup()">×</button>
+    <!-- Quantity Popup -->
+    <div id="quantity-popup" class="fixed hidden top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 p-6 rounded-lg shadow-lg z-50">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Add to Cart</h3>
+            <button onclick="closeQuantityPopup()" class="text-gray-600 hover:text-gray-900">&times;</button>
         </div>
         <p id="popup-item-name"></p>
         <p>Available Quantity: <span id="popup-item-quantity"></span></p>
         <form id="add-to-cart-form" method="post" action="{% url 'add_to_cart' %}">
             {% csrf_token %}
-            <input type="hidden" name="item_id" id="popup-item-id" value="" />
-            <label for="quantity-input">Quantity:</label>
-            <input type="number" id="quantity-input" name="quantity" min="1" value="1" required />
-            <br/><br/>
-            <button type="submit" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add</button>
-            <button type="button" onclick="closeQuantityPopup()" class="ml-2 py-2 px-4 rounded border border-gray-300 hover:bg-gray-100 transition">Cancel</button>
+            <input type="hidden" name="item_id" id="popup-item-id" />
+            <label class="block mt-2">Quantity:</label>
+            <input type="number" id="quantity-input" name="quantity" min="1" value="1" class="w-full border border-gray-300 rounded p-2" required />
+            <div class="mt-4 flex gap-2">
+                <button type="submit" class="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition">Add</button>
+                <button type="button" onclick="closeQuantityPopup()" class="py-2 px-4 border border-gray-300 rounded hover:bg-gray-100 transition">Cancel</button>
+            </div>
         </form>
         <p id="popup-error" class="text-red-600 mt-2 hidden"></p>
     </div>
 
+    <!-- JavaScript -->
     <script>
-        window.onload = function() {
+        window.onload = function () {
             const popup = document.getElementById('popup-message');
             {% if messages %}
                 {% for message in messages %}
-                    popup.style.display = 'block';
-                    popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
                     popup.textContent = "{{ message }}";
-                    setTimeout(() => { popup.style.display = 'none'; }, 3000);
+                    popup.style.backgroundColor = "{% if message.tags == 'error' %}#f44336{% else %}#4CAF50{% endif %}";
+                    popup.classList.remove('hidden');
+                    setTimeout(() => popup.classList.add('hidden'), 3000);
                 {% endfor %}
             {% endif %}
 
-            // Mobile menu toggle
-            const menuToggle = document.getElementById('menu-toggle');
-            const menuLinks = document.getElementById('menu-links');
-            menuToggle.addEventListener('click', () => {
-                menuLinks.classList.toggle('hidden');
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('menu-links').classList.toggle('hidden');
             });
         };
 
-        function toggleQuantityPopup(itemId, itemName, maxQuantity) {
-            const popup = document.getElementById('quantity-popup');
-            if (popup.style.display === 'block' && document.getElementById('popup-item-id').value == itemId) {
-                closeQuantityPopup();
-                return;
-            }
-            document.getElementById('popup-item-id').value = itemId;
-            document.getElementById('popup-item-name').textContent = itemName;
-            document.getElementById('popup-item-quantity').textContent = maxQuantity;
-            const quantityInput = document.getElementById('quantity-input');
-            quantityInput.max = maxQuantity;
-            quantityInput.value = 1;
-            document.getElementById('popup-error').classList.add('hidden');
-            popup.style.display = 'block';
+        function toggleQuantityPopup(id, name, maxQty) {
+            document.getElementById('popup-item-id').value = id;
+            document.getElementById('popup-item-name').textContent = name;
+            document.getElementById('popup-item-quantity').textContent = maxQty;
+            document.getElementById('quantity-input').max = maxQty;
+            document.getElementById('quantity-input').value = 1;
+            document.getElementById('quantity-popup').classList.remove('hidden');
         }
 
         function closeQuantityPopup() {
-            document.getElementById('quantity-popup').style.display = 'none';
+            document.getElementById('quantity-popup').classList.add('hidden');
         }
     </script>
-
 </body>
 </html>

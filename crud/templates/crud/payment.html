@@ -1,28 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Payment Demo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen p-6 flex items-center justify-center">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow max-w-md w-full">
+    <h2 class="text-2xl font-bold mb-4 text-center">Payment Checkout</h2>
 
-    <div class="max-w-md bg-white rounded-lg shadow p-8 text-center">
+    <form method="POST" action="/pay/">
+      {% csrf_token %}
 
-        <h1 class="text-3xl font-bold mb-4">Payment Demo</h1>
-        <p class="mb-6">This is a demo payment page. Click the button below to simulate payment processing.</p>
+      <div class="mb-4">
+        <label for="name" class="block text-sm font-medium mb-1">Name on Card</label>
+        <input type="text" id="name" name="name" required class="w-full border border-gray-300 p-2 rounded" />
+      </div>
 
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700 transition font-semibold">Pay Now</button>
-        </form>
+      <div class="mb-4">
+        <label for="card" class="block text-sm font-medium mb-1">Card Number</label>
+        <input type="text" id="card" name="card_number" required maxlength="16" class="w-full border border-gray-300 p-2 rounded" />
+      </div>
 
-        <p class="mt-6">
-            <a href="{% url 'view_cart' %}" class="text-blue-600 hover:underline font-semibold">Back to Cart</a>
-        </p>
+      <div class="flex gap-4 mb-4">
+        <div class="flex-1">
+          <label for="expiry" class="block text-sm font-medium mb-1">Expiry</label>
+          <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required class="w-full border border-gray-300 p-2 rounded" />
+        </div>
+        <div class="flex-1">
+          <label for="cvv" class="block text-sm font-medium mb-1">CVV</label>
+          <input type="text" id="cvv" name="cvv" maxlength="4" required class="w-full border border-gray-300 p-2 rounded" />
+        </div>
+      </div>
 
-    </div>
+      <div class="mb-6">
+        <label for="amount" class="block text-sm font-medium mb-1">Amount</label>
+        <input type="number" id="amount" name="amount" required class="w-full border border-gray-300 p-2 rounded" />
+      </div>
 
+      <button type="submit" class="w-full bg-teal-600 text-white p-2 rounded hover:bg-teal-700 transition">Pay Now</button>
+    </form>
+  </div>
 </body>
 </html>

@@ -13,6 +13,14 @@
             &larr; Back
         </button>
     </div>
+
+    <script>
+        // Redirect back button to products_management page
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            window.location.href = "{% url 'products_management' %}";
+        };
+    </script>
     {% if items %}
     <div class="overflow-x-auto mb-10">
         <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">

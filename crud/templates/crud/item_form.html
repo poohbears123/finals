@@ -58,7 +58,7 @@
             <button type="submit"
                 class="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition-colors">{% if item %}Update{% else %}Create{% endif %}</button>
         </form>
-        <a href="{% url 'products_management' %}" class="block mt-6 text-center text-blue-600 hover:underline">Back to Products</a>
+        <a  onclick="history.back()"class="block mt-6 text-center text-blue-600 hover:underline">Back</a>
     </div>
 </body>
 </html>

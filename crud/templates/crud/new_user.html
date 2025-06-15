@@ -13,10 +13,16 @@
         <h2 class="text-2xl font-semibold mb-6 text-center">{% if profile_edit %}Edit Profile{% else %}Edit Users{% endif %}</h2>
 
         {% if profile_edit %}
-        <div class="mb-4 text-center">
-            <a href="{% url 'edit_users' %}" class="inline-block bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">
-                &larr; Back to Users List
-            </a>
+        <div class="mb-6 text-left">
+            <button onclick="history.back()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center">
+                &larr; Back
+            </button>
+        </div>
+        {% else %}
+        <div class="mb-6 text-left">
+            <button onclick="history.back()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center">
+                &larr; Back
+            </button>
         </div>
         {% endif %}
 
