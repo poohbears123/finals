@@ -336,7 +336,7 @@ def order_summary(request):
             item_id, size = parts
         else:
             item_id = parts[0]
-            size = 'S'  # default size if not specified
+            size = 'S' 
         item = get_object_or_404(Item, pk=item_id)
         item_total_price = item.price * quantity
         items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price, 'size': size})
@@ -578,8 +578,29 @@ from django.core.paginator import Paginator
 @staff_member_required
 @csrf_protect
 def admin_orders(request):
+    def send_full_update_to_zapier(purchases):
+        payload = {
+            'type': 'full_update',
+            'updated_purchases': []
+        }
+        for purchase in purchases:
+            payload['updated_purchases'].append({
+                'purchase_id': purchase.id,
+                'user': purchase.user.username,
+                'full_name': f"{purchase.user.first_name} {purchase.user.last_name}".strip(),
+                'email': purchase.user.email,
+                'item': purchase.item.name,
+                'quantity': purchase.quantity,
+                'status': purchase.status,
+                'purchase_date': purchase.purchase_date.isoformat(),
+                'price': purchase.item.price,
+            })
+        from .utils import send_to_zapier
+        send_to_zapier(payload)
+
     if request.method == 'POST':
         updated_count = 0
+        updated_purchases = []
         for key, value in request.POST.items():
             if key.startswith('status_'):
                 try:
@@ -588,11 +609,13 @@ def admin_orders(request):
                     if purchase.status != value:
                         purchase.status = value
                         purchase.save()
-                        logger.info(f"Purchase updated: ID {purchase.id}, New status: {value}")
+                        updated_purchases.append(purchase)
+                        print(f"Purchase updated: ID {purchase.id}, New status: {value}")  # Print to console
                         updated_count += 1
                 except (Purchase.DoesNotExist, ValueError):
                     continue
         if updated_count > 0:
+            send_full_update_to_zapier(updated_purchases)
             messages.success(request, f"{updated_count} order(s) updated successfully.")
         else:
             messages.info(request, "No orders were updated.")
