@@ -50,9 +50,8 @@
     </div>
     <p class="text-lg font-semibold mb-4">Total Items: {{ total_quantity }}</p>
     <p class="text-xl font-bold mb-8">Total Price: ₱{{ total_price }}</p>
-    <form method="post" action="{% url 'payment_demo' %}">
-        {% csrf_token %}
-        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Proceed to Payment (Demo)</button>
+    <form method="get" action="{% url 'order_summary' %}">
+        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Proceed to Checkout</button>
     </form>
     {% else %}
     <p class="text-center text-gray-500 text-lg">Your cart is empty.</p>

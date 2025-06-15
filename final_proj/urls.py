@@ -44,6 +44,7 @@ urlpatterns = [
     path('profile_edit/', crud_views.profile_edit, name='profile_edit'),
     path('past_orders/', crud_views.past_orders, name='past_orders'),
     path('order_confirmation/', crud_views.order_confirmation, name='order_confirmation'),
+    path('order_summary/', crud_views.order_summary, name='order_summary'),
     path('admin_orders/', crud_views.admin_orders, name='admin_orders'),
 ]
 

@@ -1,9 +1,12 @@
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Item, Category, Variety
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def main_menu(request):
@@ -23,7 +26,8 @@ def variety_create(request):
             if Variety.objects.filter(name=name).exists():
                 messages.error(request, 'Variety with this name already exists.')
             else:
-                Variety.objects.create(name=name)
+                variety = Variety.objects.create(name=name)
+                logger.info(f"Variety added: {variety.name} (ID: {variety.id})")
                 messages.success(request, 'Variety created successfully.')
                 return redirect('variety_list')
         else:
@@ -41,6 +45,7 @@ def variety_update(request, pk):
             else:
                 variety.name = name
                 variety.save()
+                logger.info(f"Variety updated: {variety.name} (ID: {variety.id})")
                 messages.success(request, 'Variety updated successfully.')
                 return redirect('variety_list')
         else:
@@ -117,7 +122,8 @@ def item_create(request):
         stock = int(request.POST.get('stock', 0))
         price = int(request.POST.get('price', 0))
         photo = request.FILES.get('photo')
-        Item.objects.create(name=name, description=description, variety=variety, category=category, size=size, stock=stock, price=price, photo=photo)
+        item = Item.objects.create(name=name, description=description, variety=variety, category=category, size=size, stock=stock, price=price, photo=photo)
+        logger.info(f"Item added: {item.name} (ID: {item.id})")
         return redirect('products_management')
     return render(request, 'crud/item_form.html', {'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
 
@@ -165,6 +171,7 @@ def item_update(request, pk):
         if photo:
             item.photo = photo
         item.save()
+        logger.info(f"Item updated: {item.name} (ID: {item.id})")
         messages.success(request, "Product updated successfully.")
         return redirect('products_management')
     return render(request, 'crud/item_form.html', {'item': item, 'size_options': ['S', 'M', 'L', 'XL', 'XXL']})
@@ -282,10 +289,35 @@ from django.contrib.admin.views.decorators import staff_member_required
 from .utils import send_to_zapier
 
 @login_required
+def order_summary(request):
+    cart = request.session.get('cart', {})
+    if not cart:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('view_cart')
+
+    items = []
+    total_quantity = 0
+    total_price = 0
+    for pk, quantity in cart.items():
+        item = get_object_or_404(Item, pk=pk)
+        item_total_price = item.price * quantity
+        items.append({'item': item, 'quantity': quantity, 'item_total_price': item_total_price})
+        total_quantity += quantity
+        total_price += item_total_price
+
+    return render(request, 'crud/order_summary.html', {
+        'items': items,
+        'total_quantity': total_quantity,
+        'total_price': total_price,
+    })
+
+@login_required
 def payment_demo(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         order_details = []
+        total_quantity = 0
+        total_price = 0
         for pk_str, quantity in cart.items():
             pk = int(pk_str)
             item = get_object_or_404(Item, pk=pk)
@@ -293,23 +325,30 @@ def payment_demo(request):
                 item.stock -= quantity  
                 item.save()
                 purchase = Purchase.objects.create(user=request.user, item=item, quantity=quantity, status='Pending')
+                logger.info(f"Purchase added: User {request.user.username}, Item {item.name} (ID: {item.id}), Quantity {quantity}")
                 order_details.append({
                     'item_name': item.name,
                     'quantity': quantity,
                     'price': item.price,
                     'total_price': item.price * quantity,
                 })
+                total_quantity += quantity
+                total_price += item.price * quantity
             else:
                 messages.error(request, f'Not enough stock for {item.name}.')
-                return redirect('view_cart')
+                return redirect('order_summary')
         messages.success(request, 'Payment processed successfully.')
         request.session['cart'] = {}
 
         # Send order confirmation to Zapier
         payload = {
             'user': request.user.username,
+            'full_name': f"{request.user.first_name} {request.user.last_name}".strip(),
             'email': request.user.email,
             'order_details': order_details,
+            'total_quantity': total_quantity,
+            'total_price': total_price,
+            'purchase_date': purchase.purchase_date.isoformat() if order_details else None,
         }
         send_to_zapier(payload)
 
@@ -401,6 +440,7 @@ def edit_users(request):
                 user_obj.is_superuser = False
                 user_obj.is_staff = False
             user_obj.save()
+            logger.info(f"User updated: {user_obj.username} (ID: {user_obj.id})")
             messages.success(request, 'User updated successfully')
             return redirect('edit_users')
         else:
@@ -423,6 +463,7 @@ def edit_users(request):
                 is_superuser = False
                 is_staff = True
             user_obj = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name, email=email, is_superuser=is_superuser, is_staff=is_staff)
+            logger.info(f"User added: {user_obj.username} (ID: {user_obj.id})")
             messages.success(request, 'User created successfully')
             return redirect('edit_users')
 
@@ -449,6 +490,7 @@ def profile_edit(request):
         if password and password.strip() != '':
             user.set_password(password)
         user.save()
+        logger.info(f"User profile updated: {user.username} (ID: {user.id})")
         messages.success(request, 'Profile updated successfully')
         return redirect('profile_edit')
     return render(request, 'crud/new_user.html', {'user': user, 'profile_edit': True})
@@ -495,6 +537,7 @@ def admin_orders(request):
                     if purchase.status != value:
                         purchase.status = value
                         purchase.save()
+                        logger.info(f"Purchase updated: ID {purchase.id}, New status: {value}")
                         updated_count += 1
                 except (Purchase.DoesNotExist, ValueError):
                     continue
